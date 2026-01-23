@@ -340,7 +340,7 @@
               <MiscControls>-Wno-invalid-source-encoding</MiscControls>
               <Define>SYS_SUPPORT_OS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\User;..\Firmware\CMSIS;..\Firmware\CMSIS\GD\GD32F4xx\Include;..\Firmware\GD32F4xx_standard_peripheral\Include;..\Hardware;..\Library;..\Library\I2C;..\App;..\FreeRTOS\include;..\FreeRTOS\portable\GCC\ARM_CM4F;..\Hardware\OLED</IncludePath>
+              <IncludePath>..\User;..\Firmware\CMSIS;..\Firmware\CMSIS\GD\GD32F4xx\Include;..\Firmware\GD32F4xx_standard_peripheral\Include;..\Library;..\Library\I2C;..\Library\SPI;..\App;..\FreeRTOS\include;..\FreeRTOS\portable\GCC\ARM_CM4F;..\Hardware;..\Hardware\OLED</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -445,16 +445,6 @@
               <FilePath>..\Hardware\bsp_keys.h</FilePath>
             </File>
             <File>
-              <FileName>bsp_ws2812.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\bsp_ws2812.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_ws2812.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\bsp_ws2812.h</FilePath>
-            </File>
-            <File>
               <FileName>oled.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\OLED\oled.c</FilePath>
@@ -473,6 +463,16 @@
               <FileName>bmp.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Hardware\OLED\bmp.h</FilePath>
+            </File>
+            <File>
+              <FileName>driver_ws2812b.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\driver_ws2812b.c</FilePath>
+            </File>
+            <File>
+              <FileName>driver_ws2812b.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\driver_ws2812b.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -8,12 +8,10 @@ TaskHandle_t xTaskGameProgress_Handle;
 TaskHandle_t xTaskWS2812_Handle_1;
 TaskHandle_t xTaskWS2812_Handle_2;
 
-SemaphoreHandle_t 	sema_WS2812Re_handler;
-
+EventGroupHandle_t KEY_eventgroup_handle;
 
 void USART0_on_recv(uint8_t* data, uint32_t len){
 } 
-
 
 void sys_init(){
     DelayInit();
@@ -24,14 +22,17 @@ void sys_init(){
     
     OLED_Init();
     bsp_keys_init();
-    bsp_ws2812_init();
+    WS2812_init();
 }
 
 void vTask_init(uint8_t *pvParameters){
     // 初始化外设 
     sys_init();
     printf("Init Complete!\n");
-        
+    
+    // 创建事件组
+    KEY_eventgroup_handle = xEventGroupCreate();
+    
     // 进入临界区, 所有任务会被禁止切换，中断被屏蔽 ---------------------------
     taskENTER_CRITICAL();
     {
@@ -53,8 +54,6 @@ int main(void) {
     // 全局优先级分配规则：4抢占[0,15], 0响应
     nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
     
-    sema_WS2812Re_handler = xSemaphoreCreateBinary();
-    
     // 创建第一个任务(初始化外设, 创建其他任务)
     BaseType_t rst = xTaskCreate(
         (TaskFunction_t)             vTask_init,    // 任务函数的指针
@@ -69,9 +68,5 @@ int main(void) {
     // 开启任务调度
     vTaskStartScheduler();
   
-    while(1){};  
+    while(1);  
 }
-
-
-
-

@@ -2,6 +2,92 @@
 
 //xTaskCreate( vTaskGameProgress, "vTaskGameProgress",   512, NULL, 3, &xTaskGameProgress_Handle);
 
+/** 按键排布 * * * * * * * * * * * * * * * * **
+  *       	   KEY1                          *                       
+  *    KEY3	 		   KEY2       KEY5       *  
+  *            KEY4                          *  
+  ** * * * * * * * * * * * * * * * * * * * * **/
+ int8_t g_user_guess[5 * 8] = {0,0,0,0,0,  // 0
+                               0,0,0,0,0,  // 1
+                               0,0,0,0,0,  // 2
+                               0,0,0,0,0,  // 3
+                               0,0,0,0,0,  // 4
+                               0,0,0,0,0,  // 5
+                               0,0,0,0,0,  // 6
+                               0,0,0,0,0}; // 7
+// 无0 红1 橙2 黄3 绿4 青5 蓝6 紫7
+void print_user_guess(){
+    for(int8_t i = 0; i < 8; i++) {
+        int8_t row_start = i * 5; 
+        printf("[%d] %d,%d,%d,%d,%d\n",
+               (int)i,
+               (int)g_user_guess[row_start],
+               (int)g_user_guess[row_start + 1],
+               (int)g_user_guess[row_start + 2],
+               (int)g_user_guess[row_start + 3],
+               (int)g_user_guess[row_start + 4]);
+    }
+    printf("==============\n");
+}
+                               
+#define WS2812MAIN_RE_W() WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1)
+#define WS2812OTHER_GRN() WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
+static void Clear_NowPos_WS2812(int8_t p){
+     WS2812_set_color_brightness(2, p, 0x000000, 1);
+}
+
+/************************************************************** 位置 **/ 
+ int8_t g_currentPos = 0;                                           /* 明 */
+ int8_t currentColorIndex = 0;                                      /* 日 */
+uint8_t g_currentLine = 1;                                          /* 方 */
+void Change_Pos(int8_t dir) {                                       /* 舟 */
+  #define _pos g_currentPos                                         /* 终 */
+    uint8_t c_l_max = (g_currentLine * 5) - 1; // 1*5 5   01234     /* 末 */
+    uint8_t c_l_min = c_l_max - 4;             // 2*5 10  56789     /* 地 */
+                                                                    /* 真 */
+    Clear_NowPos_WS2812(_pos);                                      /* 的 */
+    _pos += dir;                                                    /* 不 */
+    if(_pos < c_l_min) _pos = c_l_min;                              /* 好 */
+    if(_pos > c_l_max) _pos = c_l_max;                              /* 玩 */
+    WS2812MAIN_RE_W();                                              /*    */
+    g_user_guess[g_currentPos] = currentColorIndex;                 /* 二 */
+    print_user_guess();                                             /* 零 */
+    WS2812OTHER_GRN();                                              /* 二 */
+}                                                                   /* 六 */
+                                                                    /* 一 */
+void Change_Line(){                                                 /* 月 */
+    if(g_currentLine > 6) return;                                   /* 二 */
+    g_currentLine += 1;                                             /* 十 */
+    Change_Pos(0);                                                  /* 三 */
+}                                                                   /* 日 */ 
+/********************************************************** 颜色 *********/   
+                                                                  /*   */
+uint32_t COLORS[7] = {0xFF0000,  // 红                           /*  */
+                      0xFFA500,  // 橙                          /* */
+                      0xFFFF00,  // 黄                          /**/
+                      0x00FF00,  // 绿                          /**/
+                      0x00FFFF,  // 青                          /**/
+                      0x0000FF,  // 蓝                          /**/
+                      0xFF00FF}; // 紫                          /**/
+                                                                /**/
+uint32_t g_currentColor = 0xFF0000;                             /**/
+                                                                /**/
+void Toggle_Color(int8_t dir) {                                 /**/
+    static int8_t i = 0;                                        /**/
+    // 钳位 0123456                                             /**/
+    i = (i + dir) % 7;                                          /**/
+    if(i < 0) i += 7;                                           /**/
+    currentColorIndex = i+1;                                    /**/
+    g_user_guess[g_currentPos] = currentColorIndex;             /**/
+    print_user_guess();                                         /**/
+    g_currentColor = COLORS[i];                                 /**/
+    WS2812MAIN_RE_W();                                          /**/
+}                                                               /**/
+                                                                /**/
+/******************************************************************/
+
+uint8_t g_currentState = InitState;
+
 void vTaskGameProgress(){
 
     while(1){
@@ -10,12 +96,24 @@ void vTaskGameProgress(){
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if 0
-        
-//按键排布
-//   	  KEY1
-// KEY0	 		 KEY2       KEY4
-//	      KEY3
+       
 
 void Device_Default2LevelSW(u8 key){
 		if(key == 4){

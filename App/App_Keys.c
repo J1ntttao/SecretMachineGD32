@@ -3,25 +3,66 @@
 //xTaskCreate( vTaskKey,          "vTaskKey",            512, NULL, 5, &xTaskKey_Handle);
 
 void vTaskKey(){
-    
     while(1){
-        //printf("vTaskKey\n");
         bsp_keys_scan();
-        vTaskDelay(10);    
+        vTaskDelay(pdMS_TO_TICKS(10));    
     }
 }
 
-BaseType_t result;
-void Keys_on_keydown(uint8_t key){
-    printf("KEY%d \n",(int)key);
-    result = xSemaphoreGive(sema_WS2812Re_handler);
+static void sToggle_Color(int8_t dir){
+    // 向dir依次切换7种颜色
+    Toggle_Color(dir); 
+    // 显示颜色
+    xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);    
+}
+
+static void sChange_Pos(int8_t dir){
+    // 往dir走一格
+    Change_Pos(dir);
+    // 显示颜色
+    xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
 }
 
 
+/** 按键排布 **********************************************************
+ *         	             KEY1                                        *
+ *               KEY3	 		 KEY2       KEY5                     *
+ *      	             KEY4                                        *
+ *********************************************************************/  
 
-
-
-
+void Keys_on_keydown(uint8_t key){
+    //printf("KEY%d \n",(int)key);
+    switch(key){
+        case 1:
+            //printf("KEY 1 DOWN\n");
+            sToggle_Color(1);
+            break;
+        case 2:
+            //printf("KEY 2 DOWN\n");
+            sChange_Pos(1);
+            break;
+        case 3:
+            //printf("KEY 3 DOWN\n");
+            sChange_Pos(-1);
+            break;
+        case 4:
+            //printf("KEY 4 DOWN\n");
+            sToggle_Color(-1);
+            break;
+        case 5:
+            //printf("KEY 5 DOWN\n");
+            // 改变行
+            Change_Line();
+            // 显示颜色
+            xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
+            break;        
+        default:
+            printf("CLEAR KEY \n");
+            xEventGroupClearBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR | BIT_2 | BIT_3 | BIT_4 );
+            break;
+    }
+}
+            
 
 
 
@@ -31,13 +72,7 @@ void Keys_on_keydown(uint8_t key){
 
 #if 0
 
-//  0  1  2  3  //系统开始给出的参考
-//  4  5  6  7
-//  8  9 10 11
-// 12 13 14 15
-// 16 17 18 19
-// 20 21 22 23
-// 24 25 26 27
+
 
 extern u32 sys_ms;
 char g_current_color = 0;	

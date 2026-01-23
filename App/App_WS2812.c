@@ -6,34 +6,54 @@
 // MAIN_NUM   28+ 7=35颗灯 SPI1=>PB15
 // OTHER_NUM  28+28=56颗灯 SPI0=>PA07
 
-//result = xSemaphoreGive(sema_WS2812Re_handler);
+//  0     1     2     3     4
+//  5     6     7     8     9
+//  10    11    12    13    14
+//  15    16    17    18    19
+//  20    21    22    23    24
+//  25    26    27    28    29
+//  30    31    32    33    34
+//  35  36  37  38  39  40  41
 
+/** 按键排布 **********************************************************
+ *         	             KEY1                                        *
+ *               KEY3	 		 KEY2       KEY5                     *
+ *      	             KEY4                                        *
+ *********************************************************************/  
 void vTaskWS2812_1(){
-    BaseType_t result;
-    for(uint8_t i = 0;i<MAIN_NUM;i++){
-         bsp_ws2812_set_color(MAINLINE, i, 0xA00AFF);
-    }
+    EventBits_t uxBits;
     while(1){  
-        //result = xSemaphoreTake(sema_WS2812Re_handler, portMAX_DELAY);
-
-        bsp_ws2812_display_MAIN();
-                
-        vTaskDelay(500);
+        uxBits = xEventGroupWaitBits(
+            KEY_eventgroup_handle,  // 事件组句柄
+            TOGGLE_COLOR,           // 关心的事件标志，多个用 |,+ 连在一起
+            pdTRUE,                 // 退出时是否清理标记(置0), 只会清理关心的标记
+            pdTRUE,                 // 所有关心的标志同时为1时，才解除阻塞
+            pdMS_TO_TICKS(3000)     // 等待超时时间：3s
+        );        
+        WS2812_display(1);                
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
+
 
 void vTaskWS2812_2(){
-    BaseType_t result;
-    for(uint8_t i = 0;i<OTHER_NUM;i++){
-         bsp_ws2812_set_color(OTHERLINE, i, 0xFF00AA);
-    }
+    EventBits_t uxBits;     
+    
     while(1){
-        //result = xSemaphoreTake(sema_WS2812Re_handler, portMAX_DELAY);
+        uxBits = xEventGroupWaitBits(
+            KEY_eventgroup_handle,  // 事件组句柄
+            CHECK_COLOR,            // 关心的事件标志，多个用 |,+ 连在一起
+            pdTRUE,                 // 退出时是否清理标记(置0), 只会清理关心的标记
+            pdTRUE,                 // 所有关心的标志同时为1时，才解除阻塞
+            portMAX_DELAY           // 等待超时时间： 一直等
+        );
 
-        bsp_ws2812_display_OTHER();
-        vTaskDelay(1000);
+        WS2812_display(2);
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
+
+
 #if 0
 
 // 红橙黄绿青蓝紫
