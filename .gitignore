@@ -13,7 +13,11 @@
 # eide template
 *.ept
 *.eide-template
-*.exe
+/Project/GD32F407_EC12_analysis.xlsx
+/Project/GD32F407_EC12_sort_by_flash.csv
+/Project/GD32F407_EC12_sort_by_ram.csv
+/Project/keil5_disp_size_bar.exe
+/Project/Target 1_alog.txt
 *.csv
 *.xlsx
 Target 1_alog.txt
