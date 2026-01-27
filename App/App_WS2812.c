@@ -22,13 +22,14 @@
  *********************************************************************/  
 void vTaskWS2812_1(){
     EventBits_t uxBits;
+    
     while(1){  
         uxBits = xEventGroupWaitBits(
             KEY_eventgroup_handle,  // 事件组句柄
             TOGGLE_COLOR,           // 关心的事件标志，多个用 |,+ 连在一起
             pdTRUE,                 // 退出时是否清理标记(置0), 只会清理关心的标记
             pdTRUE,                 // 所有关心的标志同时为1时，才解除阻塞
-            pdMS_TO_TICKS(3000)     // 等待超时时间：3s
+            pdMS_TO_TICKS(2222)     // 等待超时时间：2.22s
         );        
         WS2812_display(1);                
         vTaskDelay(pdMS_TO_TICKS(50));
@@ -45,9 +46,8 @@ void vTaskWS2812_2(){
             CHECK_COLOR,            // 关心的事件标志，多个用 |,+ 连在一起
             pdTRUE,                 // 退出时是否清理标记(置0), 只会清理关心的标记
             pdTRUE,                 // 所有关心的标志同时为1时，才解除阻塞
-            portMAX_DELAY           // 等待超时时间： 一直等
+            pdMS_TO_TICKS(3333)     // 等待超时时间： 3.33s
         );
-
         WS2812_display(2);
         vTaskDelay(pdMS_TO_TICKS(50));
     }

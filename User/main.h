@@ -43,6 +43,7 @@ OF SUCH DAMAGE.
 #include "SPI/SPI.h"
 #include "App.h"
 
+#include "u8g2.h"
 #endif /* __MAIN_H */
 
 

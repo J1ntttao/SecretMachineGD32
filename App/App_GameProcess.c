@@ -1,13 +1,21 @@
 #include "App.h"
 
 //xTaskCreate( vTaskGameProgress, "vTaskGameProgress",   512, NULL, 3, &xTaskGameProgress_Handle);
+uint8_t g_currentState = InitState;
+
+#define WS2812MAIN_RE_W() WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1)
+#define WS2812OTHER_GRN() WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
+static void Clear_NowPos_WS2812(int8_t p){
+     WS2812_set_color_brightness(2, p, 0x000000, 1);
+}
+
 
 /** 按键排布 * * * * * * * * * * * * * * * * **
   *       	   KEY1                          *                       
   *    KEY3	 		   KEY2       KEY5       *  
   *            KEY4                          *  
   ** * * * * * * * * * * * * * * * * * * * * **/
- int8_t g_user_guess[5 * 8] = {0,0,0,0,0,  // 0
+ int8_t g_user_guess[5 * 8] = {1,0,0,0,0,  // 0
                                0,0,0,0,0,  // 1
                                0,0,0,0,0,  // 2
                                0,0,0,0,0,  // 3
@@ -30,15 +38,10 @@ void print_user_guess(){
     printf("==============\n");
 }
                                
-#define WS2812MAIN_RE_W() WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1)
-#define WS2812OTHER_GRN() WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
-static void Clear_NowPos_WS2812(int8_t p){
-     WS2812_set_color_brightness(2, p, 0x000000, 1);
-}
-
-/************************************************************** 位置 **/ 
+uint8_t g_currentSteps = 1;
+/********************************************************** 位置相关 ******/ 
  int8_t g_currentPos = 0;                                           /* 明 */
- int8_t currentColorIndex = 0;                                      /* 日 */
+ int8_t currentColorIndex = 1;                                      /* 日 */
 uint8_t g_currentLine = 1;                                          /* 方 */
 void Change_Pos(int8_t dir) {                                       /* 舟 */
   #define _pos g_currentPos                                         /* 终 */
@@ -60,11 +63,12 @@ void Change_Line(){                                                 /* 月 */
     g_currentLine += 1;                                             /* 十 */
     Change_Pos(0);                                                  /* 三 */
 }                                                                   /* 日 */ 
-/********************************************************** 颜色 *********/   
-                                                                  /*   */
-uint32_t COLORS[7] = {0xFF0000,  // 红                           /*  */
-                      0xFFA500,  // 橙                          /* */
-                      0xFFFF00,  // 黄                          /**/
+                                                                    /*   */ 
+/********************************************************** 颜色类 ******/   
+                                                                   /* */
+uint32_t COLORS[7] = {0xFF0000,  // 红                            /* */
+                      0xFFA500,  // 橙                           /* */
+                      0xFFFF00,  // 黄                          /* */
                       0x00FF00,  // 绿                          /**/
                       0x00FFFF,  // 青                          /**/
                       0x0000FF,  // 蓝                          /**/
@@ -86,8 +90,6 @@ void Toggle_Color(int8_t dir) {                                 /**/
                                                                 /**/
 /******************************************************************/
 
-uint8_t g_currentState = InitState;
-
 void vTaskGameProgress(){
 
     while(1){
@@ -96,8 +98,39 @@ void vTaskGameProgress(){
     }
 }
 
+/*
+     int8_t g_user_guess[5 * 8] = {1,0,0,0,0,  // 0
+                                   0,0,0,0,0,  // 1
+                                   0,0,0,0,0,  // 2
+                                   0,0,0,0,0,  // 3
+                                   0,0,0,0,0,  // 4
+                                   0,0,0,0,0,  // 5
+                                   0,0,0,0,0,  // 6
+                                   0,0,0,0,0}; // 7
+     无0 红1 橙2 黄3 绿4 青5 蓝6 紫7
+      g_currentSteps
+   WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1)
+   WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
+*/
 
+uint8_t ans[5] = {5,7,4,3,1}; // 正确答案
 
+int8_t Normal_Checked(){
+    uint8_t correctCnt = 0;
+    int8_t toCompareLine = g_currentLine - 2;
+    // 循环判断每一个位置是不是等于
+    for(uint8_t i = 0; i < 5; i++){
+        if(g_user_guess[(5 * toCompareLine) + i] == ans[i]){
+            WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
+            correctCnt++;
+        }     
+    }
+    printf("correntCnt %d\n",(int)correctCnt);
+    if(correctCnt == 5){
+        return 1;
+    }
+    return 0;
+}
 
 
 

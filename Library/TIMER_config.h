@@ -3,7 +3,7 @@
 
 #include "gd32f4xx.h"
 
-#define USE_TIMER_0     0 
+#define USE_TIMER_0     0
 #define USE_TIMER_1     0   
 #define USE_TIMER_2     0   
 #define USE_TIMER_3     0  

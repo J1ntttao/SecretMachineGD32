@@ -5,7 +5,7 @@
 void vTaskKey(){
     while(1){
         bsp_keys_scan();
-        vTaskDelay(pdMS_TO_TICKS(10));    
+        vTaskDelay(pdMS_TO_TICKS(20));    
     }
 }
 
@@ -29,36 +29,120 @@ static void sChange_Pos(int8_t dir){
  *               KEY3	 		 KEY2       KEY5                     *
  *      	             KEY4                                        *
  *********************************************************************/  
+static void KeyUpDown_down(int8_t dir){
+    if(g_currentState == InitState){
+        State_Change(); 
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        return;
+    }
+    if(g_currentState == SwDiffState){
+        g_cur_Diff -= dir;
+        if(g_cur_Diff < 0) g_cur_Diff = 2;
+        if(g_cur_Diff > 2) g_cur_Diff = 0;
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        return;   
+    }
+    if(g_currentState == SwLevelState){
+        g_cur_level -= dir;
+        if(g_cur_level < 1) g_cur_level = 3;
+        if(g_cur_level > 3) g_cur_level = 1;
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        return;       
+    }
+    if(g_currentState == SetConfigState){   // SetConfigState
+        g_cur_config_sw -= dir;
+        if(g_cur_config_sw < 1) g_cur_config_sw = 3;
+        if(g_cur_config_sw > 3) g_cur_config_sw = 1;
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        return;       
+    }
+    if(g_currentState == StartState){
+        sToggle_Color(dir);
+        return;    
+    }
+}
+
+static void KeyLeftRight_down(int8_t dir){
+    if(g_currentState == InitState){
+        State_Change(); 
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        return;
+    }
+    if(g_currentState == SwDiffState){
+        // none
+        return;   
+    }
+    if(g_currentState == SwLevelState){
+        // none
+        return;       
+    }
+    if(g_currentState == SetConfigState){   // SetConfigState
+        if(g_cur_config_sw == 1){
+            g_lv_time += (dir*10);
+            if(g_lv_time < 0) g_lv_time = 0;
+        }
+        if(g_cur_config_sw == 2){
+            g_lv_steps += dir;
+            if(g_lv_steps < 2) g_lv_steps = 1;
+        }  
+        if(g_cur_config_sw == 3){
+            g_lv_light += dir;
+        }
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        return;           
+    }
+    if(g_currentState == StartState){
+        sChange_Pos(dir);
+        return;    
+    }
+}
+
+static void Key5_down(){
+    if(g_currentState == InitState){
+        State_Change(); 
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        return;
+    }
+    if(g_currentState == SwDiffState){
+        State_Change(); 
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        return;   
+    }
+    if(g_currentState == SwLevelState){
+        State_Change(); 
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        return;       
+    }
+    if(g_currentState == SetConfigState){
+        State_Change(); 
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        // 发送倒计时信号量
+        xSemaphoreGive(CountDown_Semaphore);
+        return;           
+    }
+    if(g_currentState == StartState){
+        uint8_t isEnd = 0;
+        // 改变行
+        Change_Line();
+        
+        isEnd = Normal_Checked();
+        // 显示颜色
+        xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
+        return;    
+    }
+}
 
 void Keys_on_keydown(uint8_t key){
     //printf("KEY%d \n",(int)key);
     switch(key){
-        case 1:
-            //printf("KEY 1 DOWN\n");
-            sToggle_Color(1);
-            break;
-        case 2:
-            //printf("KEY 2 DOWN\n");
-            sChange_Pos(1);
-            break;
-        case 3:
-            //printf("KEY 3 DOWN\n");
-            sChange_Pos(-1);
-            break;
-        case 4:
-            //printf("KEY 4 DOWN\n");
-            sToggle_Color(-1);
-            break;
-        case 5:
-            //printf("KEY 5 DOWN\n");
-            // 改变行
-            Change_Line();
-            // 显示颜色
-            xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
-            break;        
+        case 1:     KeyUpDown_down(1);   break;
+        case 2:  KeyLeftRight_down(1);   break;
+        case 3: KeyLeftRight_down(-1);   break;
+        case 4:    KeyUpDown_down(-1);   break;
+        case 5:           Key5_down();   break;        
         default:
             printf("CLEAR KEY \n");
-            xEventGroupClearBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR | BIT_2 | BIT_3 | BIT_4 );
+            xEventGroupClearBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
             break;
     }
 }
