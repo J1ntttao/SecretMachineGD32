@@ -71,9 +71,9 @@ void State_Change(){
         case SwDiffState:    g_currentState = SwLevelState;     break;
         case SwLevelState:   g_currentState = SetConfigState;   break;
         case SetConfigState: g_currentState = StartState;       break;
-        case SuccessState:   g_currentState = InitState;        break;
-        case DefeatState:    g_currentState = InitState;        break;
-        default:             g_currentState = InitState;        break;
+        case KEYInitState:   g_currentState = InitState;        break;
+
+        default: break;
     }  
 }
 
@@ -221,6 +221,7 @@ static void StartState_Dis(u8g2_t *u8g2){
     }else if(g_cur_Diff == 2){
         sprintf(gaming_level, "Experts Lv%d", g_cur_level);
     }
+    
     u8g2_DrawStr(u8g2, 5, 12, gaming_level);  // 设置x,y坐标及字体内容
 
     u8g2_DrawHLine(u8g2, 7, 16, 65); // 水平线起点，x,y，长度
@@ -236,6 +237,7 @@ static void StartState_Dis(u8g2_t *u8g2){
 
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }
+
 static void SuccessState_Dis(u8g2_t *u8g2){        
     
     u8g2_ClearBuffer(u8g2);  // 清空缓冲区
@@ -243,31 +245,31 @@ static void SuccessState_Dis(u8g2_t *u8g2){
     u8g2_SetFontDirection(u8g2, 0); // 设置方向
     
     u8g2_SetFont(u8g2, u8g2_font_fub20_tf); // 设置字体
-    u8g2_DrawStr(u8g2, 0, 24, "Success!");  // 设置x,y坐标及字体内容
+    u8g2_DrawStr(u8g2,4, 24, "Success!");  // 设置x,y坐标及字体内容
 
-    u8g2_DrawHLine(u8g2, 7, 16, 65); // 水平线起点，x,y，长度
+    // u8g2_DrawHLine(u8g2, 7, 16, 65); // 水平线起点，x,y，长度
 
     u8g2_SetFont(u8g2, u8g2_font_8x13B_tf); //u8g2_font_8x13B_tf u8g2_font_inb16_mf u8g2_font_fub20_tf
 
-    u8g2_DrawStr(u8g2, 12, 45," Congratulation");
+    u8g2_DrawStr(u8g2, 4, 45," Congratulation");
 
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }
+
 static void DefeatState_Dis(u8g2_t *u8g2){        
     
     u8g2_ClearBuffer(u8g2);  // 清空缓冲区
     u8g2_SetFontMode(u8g2, 1); 
     u8g2_SetFontDirection(u8g2, 0); // 设置方向
     
-    u8g2_SetFont(u8g2, u8g2_font_fub20_tf); // 设置字体
-    u8g2_DrawStr(u8g2, 0, 24, "Defeat!");  // 设置x,y坐标及字体内容
-
-
-    u8g2_DrawHLine(u8g2, 7, 16, 65); // 水平线起点，x,y，长度
+    u8g2_SetFont(u8g2, u8g2_font_fub14_tf); // 设置字体
+    u8g2_DrawStr(u8g2, 4, 20, "Defeat!");  // 设置x,y坐标及字体内容
+    
+    //u8g2_DrawHLine(u8g2, 7, 16, 65); // 水平线起点，x,y，长度
 
     u8g2_SetFont(u8g2, u8g2_font_8x13B_tf); //u8g2_font_8x13B_tf u8g2_font_inb16_mf u8g2_font_fub20_tf
 
-    u8g2_DrawStr(u8g2, 12, 45," Try again...");
+    u8g2_DrawStr(u8g2, 4, 50,"Plz try again...");
 
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }
@@ -293,7 +295,7 @@ void vTaskOLED(){
             case StartState     :    StartState_Dis(&u8g2);          break;
             case SuccessState   :    SuccessState_Dis(&u8g2);        break;
             case DefeatState    :    DefeatState_Dis(&u8g2);         break;
-            default             :    InitState_Dis(&u8g2);           break;
+            default             :    break;
         }  
       
         vTaskDelay(pdMS_TO_TICKS(100));    

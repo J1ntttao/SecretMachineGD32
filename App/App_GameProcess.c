@@ -38,33 +38,37 @@ void print_user_guess(){
     printf("==============\n");
 }
                                
-uint8_t g_currentSteps = 1;
+
 /********************************************************** 位置相关 ******/ 
- int8_t g_currentPos = 0;                                           /* 明 */
- int8_t currentColorIndex = 1;                                      /* 日 */
-uint8_t g_currentLine = 1;                                          /* 方 */
-void Change_Pos(int8_t dir) {                                       /* 舟 */
-  #define _pos g_currentPos                                         /* 终 */
-    uint8_t c_l_max = (g_currentLine * 5) - 1; // 1*5 5   01234     /* 末 */
-    uint8_t c_l_min = c_l_max - 4;             // 2*5 10  56789     /* 地 */
-                                                                    /* 真 */
-    Clear_NowPos_WS2812(_pos);                                      /* 的 */
-    _pos += dir;                                                    /* 不 */
-    if(_pos < c_l_min) _pos = c_l_min;                              /* 好 */
-    if(_pos > c_l_max) _pos = c_l_max;                              /* 玩 */
-    WS2812MAIN_RE_W();                                              /*    */
-    g_user_guess[g_currentPos] = currentColorIndex;                 /* 二 */
-    print_user_guess();                                             /* 零 */
-    WS2812OTHER_GRN();                                              /* 二 */
-}                                                                   /* 六 */
-                                                                    /* 一 */
-void Change_Line(){                                                 /* 月 */
-    if(g_currentLine > 6) return;                                   /* 二 */
-    g_currentLine += 1;                                             /* 十 */
-    Change_Pos(0);                                                  /* 三 */
-}                                                                   /* 日 */ 
-                                                                    /*   */ 
-/********************************************************** 颜色类 ******/   
+ int8_t g_currentPos = 0;                                          
+ int8_t currentColorIndex = 1;                                     
+uint8_t g_currentLine = 1;                                         
+void Change_Pos(int8_t dir) {                                      
+  #define _pos g_currentPos                                        
+    uint8_t c_l_max = (g_currentLine * 5) - 1; // 1*5 5   01234    
+    uint8_t c_l_min = c_l_max - 4;             // 2*5 10  56789    
+                                                                   
+    Clear_NowPos_WS2812(_pos);                                     
+    _pos += dir;                                                   
+    if(_pos < c_l_min) _pos = c_l_min;                             
+    if(_pos > c_l_max) _pos = c_l_max;                             
+    WS2812MAIN_RE_W();                                             
+    g_user_guess[g_currentPos] = currentColorIndex;                
+    print_user_guess();                                            
+    WS2812OTHER_GRN();                                             
+}                                                                   
+                                                                   
+int8_t Change_Line(){         
+    // 没步数了 就结束
+    if(g_cur_steps == 1) return -1;      
+    // 当前行的话， 1234567 8的时候变为1 g_currentLine默认为 1
+    g_currentLine = (g_currentLine % 7) + 1;
+    g_cur_steps--;    
+    Change_Pos(0);                                                 
+    return 0;                                                      
+}                                                                   
+                                                                     
+/********************************************************** 颜色类 *****/   
                                                                    /* */
 uint32_t COLORS[7] = {0xFF0000,  // 红                            /* */
                       0xFFA500,  // 橙                           /* */
@@ -89,12 +93,71 @@ void Toggle_Color(int8_t dir) {                                 /**/
 }                                                               /**/
                                                                 /**/
 /******************************************************************/
+// 定义游戏结束变量
+static BaseType_t isGameEnd = pdFALSE;  // 默认关闭
+
+void GameClear_init(){
+    // 关闭倒计时
+    g_cd_enable = pdFALSE;
+    // WS2812初始化
+    WS2812_init();
+    memset(g_user_guess, 0, sizeof(g_user_guess));
+    memset(g_user_guess, 1, 1);
+    /*  int8_t*/ g_currentPos = 0; 
+    /* uint8_t*/ g_currentLine = 1; 
+    /*uint32_t*/ g_currentColor = 0xFF0000;                               
+    /*  int8_t*/ currentColorIndex = 1;   
+    /*  int8_t*/ g_cur_steps = 0;    
+}
+
+void GameTimeout(){ // g_cur_time == 0
+    // 关闭倒计时
+    g_cd_enable = pdFALSE;
+    isGameEnd = pdTRUE; // 游戏结束标记 
+}
+
+void GameDefeat(){
+    // 清除游戏结束标记
+    isGameEnd = pdFALSE;
+    // 切换状态
+    g_currentState = DefeatState; 
+    
+    // 刷新屏幕
+    xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);  
+    vTaskDelay(1000);
+    g_currentState = KEYInitState;
+}
+
+
+void GameSuccess(){
+    // 清除游戏结束标记
+    isGameEnd = pdFALSE;
+    // 切换状态
+    g_currentState = SuccessState; 
+    
+    // 刷新屏幕
+    xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);  
+    vTaskDelay(1000);
+    g_currentState = KEYInitState;
+}
+
 
 void vTaskGameProgress(){
 
-    while(1){
-        //printf("vTaskGameProgress\n");
-        vTaskDelay(500);
+    while(1){ //printf("vTaskGameProgress\n");
+        if(g_isSuccess == 1){
+            g_isSuccess = 0;
+            GameSuccess();
+        }else if(g_isSuccess == -1){
+            g_isSuccess = 0;
+            GameDefeat();
+        }
+        
+        if(isGameEnd){
+            GameDefeat();
+        }
+        
+        vTaskDelay(10);
     }
 }
 
@@ -113,11 +176,43 @@ void vTaskGameProgress(){
    WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
 */
 
-uint8_t ans[5] = {5,7,4,3,1}; // 正确答案
+uint8_t ans[5] = {1,1,1,1,1}; // 正确答案
+
+void Tip_WS2812Refresh(){
+    for(uint8_t i = 0;i < 5; i++){
+        for(uint8_t j = 1;j < 8; j++){// 1234567
+            if(ans[i] == j){
+                WS2812_set_color_brightness(1, (34+j), COLORS[j-1], 1);
+            }
+        }
+    }
+}
+
+
+void Normal_init(){
+    // 初始化灯
+    {   
+        WS2812_set_color_brightness(1, 0, 0xFF0000, 1);
+        for(uint8_t i = 1; i < WS2812_NUM1-7; i++){
+            WS2812_set_color_brightness(1, i, 0x000000, 1);
+        }
+        Tip_WS2812Refresh();
+        WS2812_set_color_brightness(2, 0, 0x00FF00, 1);
+        for(uint8_t i = 1; i < WS2812_NUM2; i++){
+            WS2812_set_color_brightness(2, i, 0x000000, 1);
+        }
+    }
+    WS2812_display(1);
+    WS2812_display(2);
+}
+
 
 int8_t Normal_Checked(){
+    // 确认按下后，先判断是否答对
     uint8_t correctCnt = 0;
-    int8_t toCompareLine = g_currentLine - 2;
+    
+    int8_t toCompareLine = g_currentLine - 1;
+    
     // 循环判断每一个位置是不是等于
     for(uint8_t i = 0; i < 5; i++){
         if(g_user_guess[(5 * toCompareLine) + i] == ans[i]){
@@ -131,14 +226,6 @@ int8_t Normal_Checked(){
     }
     return 0;
 }
-
-
-
-
-
-
-
-
 
 
 

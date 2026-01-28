@@ -2,7 +2,7 @@
 #define __APP_H__
 
 #include "gd32f4xx.h"
-
+#include "delay.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -19,8 +19,6 @@
 #include "queue.h"
 #include "event_groups.h"
 
-// 待会倒计时要用到的神奇妙妙工具：
-extern SemaphoreHandle_t  CountDown_Semaphore;
 // 待会OLED要用到的神奇妙妙工具：
 extern EventGroupHandle_t OLED_eventgroup_handle;
 // 待会KEY要用到的神奇妙妙工具：
@@ -32,6 +30,10 @@ extern EventGroupHandle_t KEY_eventgroup_handle;
 #define BIT_3 ( 1 << 3 )
 #define BIT_4 ( 1 << 4 )
 
+// LEVEL ANS:
+extern uint8_t ans[5];
+
+
 // 状态机
 enum {
     InitState       =   0,
@@ -40,7 +42,8 @@ enum {
     SetConfigState  =   3,
     StartState      =   4,
     SuccessState    =   5,
-    DefeatState     =   6
+    DefeatState     =   6,
+    KEYInitState    =   7
 };
 
 extern uint8_t g_currentState;
@@ -52,7 +55,7 @@ void vTaskWS2812_1();
 void vTaskWS2812_2();
 void vTaskTime(void *pvParameters);
 
-// APP_OLED.c
+// GAME Before:
 enum {  // 关卡难度
     Normal  = 0,
     Hard    = 1,
@@ -75,12 +78,18 @@ extern void State_Change();
 #include "u8g2.h"
 extern u8g2_t u8g2;
 
+// KEY:
+extern int8_t g_isSuccess;
+
+// CountDown:
+extern BaseType_t g_cd_enable;  // 默认关闭
+
 // POS:
 extern int8_t g_currentPos;
 extern uint8_t g_currentLine;
-extern uint8_t g_currentSteps;
+
 void Change_Pos(int8_t dir);
-void Change_Line();
+int8_t Change_Line();
 
 // COLOR:
 extern uint32_t COLORS[7];
@@ -88,6 +97,10 @@ extern uint32_t g_currentColor;
 void Toggle_Color(int8_t dir);
 
 // GAMING:
+extern void Normal_init();
 extern int8_t Normal_Checked();
+extern void GameTimeout();
+extern void GameClear_init();
+
 
 #endif

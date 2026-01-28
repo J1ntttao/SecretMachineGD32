@@ -54,17 +54,6 @@ static void init_bit_lut(void) {
 }
 
 
-void WS2812_Seven_TIPS(){
-    WS2812_set_color_brightness(1, WS2812_NUM1-7, 0xFF0000, 1);
-    WS2812_set_color_brightness(1, WS2812_NUM1-6, 0xFFA500, 1);
-    WS2812_set_color_brightness(1, WS2812_NUM1-5, 0xFFFF00, 1);
-    WS2812_set_color_brightness(1, WS2812_NUM1-4, 0x00FF00, 1);
-    WS2812_set_color_brightness(1, WS2812_NUM1-3, 0x00FFFF, 1);
-    WS2812_set_color_brightness(1, WS2812_NUM1-2, 0x0000FF, 1);
-    WS2812_set_color_brightness(1, WS2812_NUM1-1, 0xFF00FF, 1); 
-}
-
-
 void WS2812_init(void) {
     printf("WS2812_init\n");
     
@@ -76,17 +65,14 @@ void WS2812_init(void) {
     memset(colors2, 0, sizeof(colors2));
     
     // ≥ı ºªØµ∆
-    {   
-        WS2812_set_color_brightness(1, 0, 0xFF0000, 1);
-        for(uint8_t i = 1; i < WS2812_NUM1-7; i++){
-            WS2812_set_color_brightness(1, i, 0x000000, 1);
-        }
-        WS2812_Seven_TIPS();
-        WS2812_set_color_brightness(2, 0, 0x00FF00, 1);
-        for(uint8_t i = 1; i < WS2812_NUM2; i++){
-            WS2812_set_color_brightness(2, i, 0x000000, 1);
-        }
+    
+    for(uint8_t i = 0; i < WS2812_NUM1; i++){
+        WS2812_set_color_brightness(1, i, 0x000000, 1);
     }
+    for(uint8_t i = 0; i < WS2812_NUM2; i++){
+        WS2812_set_color_brightness(2, i, 0x000000, 1);
+    }
+    
     WS2812_display(1);
     WS2812_display(2);
 }

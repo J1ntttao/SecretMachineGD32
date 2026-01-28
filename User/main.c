@@ -9,8 +9,6 @@ TaskHandle_t xTaskWS2812_Handle_1;
 TaskHandle_t xTaskWS2812_Handle_2;
 TaskHandle_t xTaskTime_Handle;
 
-// 倒计时信号量
-SemaphoreHandle_t  CountDown_Semaphore = NULL;
 // 按键事件组
 EventGroupHandle_t KEY_eventgroup_handle;
 // 屏幕显示事件组
@@ -42,8 +40,6 @@ void vTask_init(uint8_t *pvParameters){
     sys_init();
     printf("Init Complete!\n");
     
-    // 创建倒计时信号量
-    CountDown_Semaphore = xSemaphoreCreateBinary();
     // 创建按键事件组
     KEY_eventgroup_handle = xEventGroupCreate();
     // 创建屏幕显示事件组

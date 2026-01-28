@@ -30,73 +30,74 @@ static void sChange_Pos(int8_t dir){
  *      	             KEY4                                        *
  *********************************************************************/  
 static void KeyUpDown_down(int8_t dir){
-    if(g_currentState == InitState){
-        State_Change(); 
-        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
-        return;
-    }
-    if(g_currentState == SwDiffState){
-        g_cur_Diff -= dir;
-        if(g_cur_Diff < 0) g_cur_Diff = 2;
-        if(g_cur_Diff > 2) g_cur_Diff = 0;
-        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
-        return;   
-    }
-    if(g_currentState == SwLevelState){
-        g_cur_level -= dir;
-        if(g_cur_level < 1) g_cur_level = 3;
-        if(g_cur_level > 3) g_cur_level = 1;
-        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
-        return;       
-    }
-    if(g_currentState == SetConfigState){   // SetConfigState
-        g_cur_config_sw -= dir;
-        if(g_cur_config_sw < 1) g_cur_config_sw = 3;
-        if(g_cur_config_sw > 3) g_cur_config_sw = 1;
-        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
-        return;       
-    }
-    if(g_currentState == StartState){
-        sToggle_Color(dir);
-        return;    
-    }
+        if(g_currentState == InitState){
+            State_Change(); 
+            xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+            return;
+        }
+        if(g_currentState == SwDiffState){
+            g_cur_Diff -= dir;
+            if(g_cur_Diff < 0) g_cur_Diff = 2;
+            if(g_cur_Diff > 2) g_cur_Diff = 0;
+            xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+            return;   
+        }
+        if(g_currentState == SwLevelState){
+            g_cur_level -= dir;
+            if(g_cur_level < 1) g_cur_level = 3;
+            if(g_cur_level > 3) g_cur_level = 1;
+            xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+            return;       
+        }
+        if(g_currentState == SetConfigState){   // SetConfigState
+            g_cur_config_sw -= dir;
+            if(g_cur_config_sw < 1) g_cur_config_sw = 3;
+            if(g_cur_config_sw > 3) g_cur_config_sw = 1;
+            xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+            return;       
+        }
+        if(g_currentState == StartState){
+            sToggle_Color(dir);
+            return;    
+        }
 }
 
 static void KeyLeftRight_down(int8_t dir){
-    if(g_currentState == InitState){
-        State_Change(); 
-        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
-        return;
-    }
-    if(g_currentState == SwDiffState){
-        // none
-        return;   
-    }
-    if(g_currentState == SwLevelState){
-        // none
-        return;       
-    }
-    if(g_currentState == SetConfigState){   // SetConfigState
-        if(g_cur_config_sw == 1){
-            g_lv_time += (dir*10);
-            if(g_lv_time < 0) g_lv_time = 0;
+        if(g_currentState == InitState){
+            State_Change(); 
+            xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+            return;
         }
-        if(g_cur_config_sw == 2){
-            g_lv_steps += dir;
-            if(g_lv_steps < 2) g_lv_steps = 1;
-        }  
-        if(g_cur_config_sw == 3){
-            g_lv_light += dir;
+        if(g_currentState == SwDiffState){
+            // none
+            return;   
         }
-        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
-        return;           
-    }
-    if(g_currentState == StartState){
-        sChange_Pos(dir);
-        return;    
-    }
+        if(g_currentState == SwLevelState){
+            // none
+            return;       
+        }
+        if(g_currentState == SetConfigState){   // SetConfigState
+            if(g_cur_config_sw == 1){
+                g_lv_time += (dir*10);
+                if(g_lv_time < 0) g_lv_time = 0;
+            }
+            if(g_cur_config_sw == 2){
+                g_lv_steps += dir;
+                if(g_lv_steps < 2) g_lv_steps = 1;
+            }  
+            if(g_cur_config_sw == 3){
+                g_lv_light += dir;
+            }
+            xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+            return;           
+        }
+        if(g_currentState == StartState){
+            sChange_Pos(dir);
+            return;    
+        }
 }
 
+int8_t g_isSuccess = 0; // -1 失败     0 正常     1 成功
 static void Key5_down(){
     if(g_currentState == InitState){
         State_Change(); 
@@ -115,17 +116,43 @@ static void Key5_down(){
     }
     if(g_currentState == SetConfigState){
         State_Change(); 
-        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
-        // 发送倒计时信号量
-        xSemaphoreGive(CountDown_Semaphore);
+        
+         // 步数同步
+        g_cur_steps = g_lv_steps;       
+        
+        // 开启倒计时
+        g_cur_time = g_lv_time;
+        g_cd_enable = pdTRUE;
+        // 倒计时内会1s调用一次 xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        
+
+        
+        Normal_init();
         return;           
     }
     if(g_currentState == StartState){
-        uint8_t isEnd = 0;
-        // 改变行
-        Change_Line();
         
-        isEnd = Normal_Checked();
+        // 检测答对否
+        g_isSuccess = Normal_Checked();
+        
+        if(g_isSuccess == 0){
+            // 改变行
+            g_isSuccess = Change_Line();
+        }
+        vTaskDelay(11);
+        // 刷新屏幕与显示颜色
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
+        return;    
+    }
+    if(g_currentState == KEYInitState){
+        // 状态切换
+        State_Change(); 
+        // 游戏初始化
+        GameClear_init();
+        
+        // 切换屏幕显示
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
         // 显示颜色
         xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
         return;    
