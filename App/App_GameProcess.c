@@ -4,7 +4,8 @@
 uint8_t g_currentState = InitState;
 
 #define WS2812MAIN_RE_W() WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1)
-#define WS2812OTHER_GRN() WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
+#define WS2812OTHER_GRN() WS2812_set_color_brightness(2, g_currentPos, 0xFFFFFF, 1)
+
 void Clear_NowPos_WS2812(int8_t p){
      WS2812_set_color_brightness(2, p, 0x000000, 1);
 }
@@ -38,6 +39,7 @@ void print_user_guess(){
     printf("==============\n");
 }
                                
+
 
 /********************************************************** 位置相关 ******/ 
  int8_t g_currentPos = 0;                                          
@@ -96,31 +98,33 @@ int8_t Change_Line(){
     return 0;                                                      
 }                                     
 
+
                                                               
 /********************************************************** 颜色类 *****/   
-                                                                   /* */
-uint32_t COLORS[7] = {0xFF0000,  // 红                            /* */
-                      0xFFA500,  // 橙                           /* */
-                      0xFFFF00,  // 黄                          /* */
-                      0x00FF00,  // 绿                          /**/
-                      0x00FFFF,  // 青                          /**/
-                      0x0000FF,  // 蓝                          /**/
-                      0xFF00FF}; // 紫                          /**/
-                                                                /**/
-uint32_t g_currentColor = 0xFF0000;                             /**/
-                                                                /**/
-void Toggle_Color(int8_t dir) {                                 /**/
-    static int8_t i = 0;                                        /**/
-    // 钳位 0123456                                             /**/
-    i = (i + dir) % 7;                                          /**/
-    if(i < 0) i += 7;                                           /**/
-    currentColorIndex = i+1;                                    /**/
-    g_user_guess[g_currentPos] = currentColorIndex;             /**/
-    print_user_guess();                                         /**/
-    g_currentColor = COLORS[i];                                 /**/
-    WS2812MAIN_RE_W();                                          /**/
-}                                                               /**/
-                                                                /**/
+                                                               
+uint32_t COLORS[7] = {0xFF0000,  // 红                         
+                      0xFFA500,  // 橙                         
+                      0xFFFF00,  // 黄                         
+                      0x00FF00,  // 绿                         
+                      0x00FFFF,  // 青                         
+                      0x0000FF,  // 蓝                         
+                      0xFF00FF}; // 紫                         
+                                                               
+uint32_t g_currentColor = 0xFF0000;                            
+                                                               
+void Toggle_Color(int8_t dir) {                                
+    static int8_t i = 0;                                       
+    // 钳位 0123456                                            
+    i = (i + dir) % 7;                                         
+    if(i < 0) i += 7;                                          
+    currentColorIndex = i+1;                                
+    g_user_guess[g_currentPos] = currentColorIndex;         
+    print_user_guess();                                     
+    g_currentColor = COLORS[i];                             
+    WS2812MAIN_RE_W();                                      
+}                                                           
+                                         
+
 /******************************************************************/
 // 定义游戏结束变量
 static BaseType_t isGameEnd = pdFALSE;  // 默认关闭
@@ -139,6 +143,7 @@ void GameClear_init(){
     /*  int8_t*/ g_cur_steps = 0;    
     /* uint8_t*/ g_cur_page = 0;      // 当前页码（0开始）
     /* uint8_t*/ g_total_page = 1;    // 总页数
+    /*uint32_t*/ g_using_time = 0;
 }
 
 void GameTimeout(){ // g_cur_time == 0
@@ -163,6 +168,8 @@ void GameDefeat(){
 void GameSuccess(){
     // 清除游戏结束标记
     isGameEnd = pdFALSE;
+    // 关闭倒计时
+    g_cd_enable = pdFALSE;
     // 切换状态
     g_currentState = SuccessState; 
     
@@ -192,85 +199,9 @@ void vTaskGameProgress(){
     }
 }
 
-/*
-     int8_t g_user_guess[5 * 8] = {1,0,0,0,0,  // 0
-                                   0,0,0,0,0,  // 1
-                                   0,0,0,0,0,  // 2
-                                   0,0,0,0,0,  // 3
-                                   0,0,0,0,0,  // 4
-                                   0,0,0,0,0,  // 5
-                                   0,0,0,0,0,  // 6
-                                   0,0,0,0,0}; // 7
-     无0 红1 橙2 黄3 绿4 青5 蓝6 紫7
-      g_currentSteps
-   WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1)
-   WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
-*/
-
-uint8_t normal_ans[4 * 5] = {0,0,0,0,0,
-                             3,4,7,1,2,
-                             1,6,4,7,5,
-                             6,3,2,4,7,
-                            }; // 正确答案
-
-uint8_t cur_ans[5] = {0};
-void Tip_WS2812Refresh(){
-    memcpy(cur_ans, &normal_ans[g_cur_level * 5], 5 * sizeof(uint8_t));
-
-    for(uint8_t i = 0;i < 5; i++){
-        for(uint8_t j = 1;j < 8; j++){// 1234567
-            if(cur_ans[i] == j){
-                WS2812_set_color_brightness(1, (34+j), COLORS[j-1], 1);
-            }
-        }
-    }
-}
-
-void Normal_init(){
-    // 初始化灯
-    {   
-        WS2812_set_color_brightness(1, 0, 0xFF0000, 1);
-        for(uint8_t i = 1; i < WS2812_NUM1-7; i++){
-            WS2812_set_color_brightness(1, i, 0x000000, 1);
-        }
-        Tip_WS2812Refresh();
-        WS2812_set_color_brightness(2, 0, 0x00FF00, 1);
-        for(uint8_t i = 1; i < WS2812_NUM2; i++){
-            WS2812_set_color_brightness(2, i, 0x000000, 1);
-        }
-    }
-    WS2812_display(1);
-    WS2812_display(2);
-}
 
 
-int8_t Normal_Checked(){
-    // 确认按下后，先判断是否答对
-    uint8_t correctCnt = 0;
-    int8_t toCompareLine = g_currentLine - 1;
-    // g_cur_level 1 2 3
-    
-    // 循环判断每一个位置是不是等于
-    for(uint8_t i = 0; i < 5; i++){
-        if(g_user_guess[(5 * toCompareLine) + i] == cur_ans[i]){
-            WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
-            correctCnt++;
-        }     
-    }
-    
-    printf("correntCnt %d\n",(int)correctCnt);
-    if(correctCnt == 5){
-        return 1;
-    }
-    return 0;
-    
-}
 
-void Hard_init(){}
-int8_t Hard_Checked(){return 0;}
-
-void Experts_init(){}
-int8_t Experts_Checked(){return 0;}
 
 #if 0
        

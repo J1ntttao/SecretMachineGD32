@@ -73,6 +73,7 @@ extern int32_t g_cur_time;
 extern int8_t g_cur_steps;
 extern int8_t g_cur_light;
 
+extern int32_t g_using_time;
 void State_Change();
 
 #include "u8g2.h"
@@ -103,6 +104,7 @@ extern uint32_t g_currentColor;
 void Toggle_Color(int8_t dir);
 
 // GAMING:
+extern int8_t g_user_guess[5 * 8];
 void Normal_init();
 void Hard_init();
 void Experts_init();

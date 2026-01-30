@@ -168,13 +168,14 @@ static void Key5_down(){
         Clear_NowPos_WS2812(g_currentPos);
         // 检测答对否
         g_isSuccess = Level_Checked();
-        
+        // 这次检查没答对就换行呗
         if(g_isSuccess == 0){
             // 改变行
             g_isSuccess = Change_Line();
         }
         
-        vTaskDelay(11);
+
+        vTaskDelay(11); // 个人感觉这里延时一点能让g_isSuccess能够及时检查到
         // 刷新屏幕与显示颜色
         xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
         xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);

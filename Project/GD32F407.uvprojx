@@ -410,9 +410,14 @@
               <FilePath>..\App\App_WS2812.c</FilePath>
             </File>
             <File>
-              <FileName>App_LevelConfig.c</FileName>
+              <FileName>App_Countdown.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\App\App_LevelConfig.c</FilePath>
+              <FilePath>..\App\App_Countdown.c</FilePath>
+            </File>
+            <File>
+              <FileName>App_Levelconfig.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\App\App_Levelconfig.c</FilePath>
             </File>
           </Files>
         </Group>
