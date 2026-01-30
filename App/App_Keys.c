@@ -17,6 +17,7 @@ static void sToggle_Color(int8_t dir){
 }
 
 static void sChange_Pos(int8_t dir){
+    Clear_NowPos_WS2812(g_currentPos);
     // 往dir走一格
     Change_Pos(dir);
     // 显示颜色
@@ -97,6 +98,31 @@ static void KeyLeftRight_down(int8_t dir){
         }
 }
 
+
+
+
+
+void Level_init(){
+    if(g_cur_Diff == 0){
+        Normal_init();
+    }else if(g_cur_Diff == 1){
+        Hard_init();
+    }else if(g_cur_Diff == 2){
+        Experts_init();
+    }       
+}
+
+int8_t Level_Checked(){
+    if(g_cur_Diff == 0){
+        return Normal_Checked();
+    }else if(g_cur_Diff == 1){
+        return Hard_Checked();
+    }else if(g_cur_Diff == 2){
+        return Experts_Checked();
+    }
+    return 0;
+}
+
 int8_t g_isSuccess = 0; // -1 失败     0 正常     1 成功
 static void Key5_down(){
     if(g_currentState == InitState){
@@ -120,25 +146,34 @@ static void Key5_down(){
          // 步数同步
         g_cur_steps = g_lv_steps;       
         
+        // 计算总页数
+        if(g_lv_steps <= 7){
+            g_total_page = 1;
+        }else{
+            g_total_page = (g_lv_steps + 6) / 7;  // 向上取整
+        }
+    
         // 开启倒计时
         g_cur_time = g_lv_time;
+        if(g_cur_time == 0) g_cur_time = 2147483647;
         g_cd_enable = pdTRUE;
+        
         // 倒计时内会1s调用一次 xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        Level_init();
         
-
-        
-        Normal_init();
         return;           
     }
     if(g_currentState == StartState){
-        
+        // 清除当前位置灯
+        Clear_NowPos_WS2812(g_currentPos);
         // 检测答对否
-        g_isSuccess = Normal_Checked();
+        g_isSuccess = Level_Checked();
         
         if(g_isSuccess == 0){
             // 改变行
             g_isSuccess = Change_Line();
         }
+        
         vTaskDelay(11);
         // 刷新屏幕与显示颜色
         xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);

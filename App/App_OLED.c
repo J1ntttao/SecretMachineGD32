@@ -163,7 +163,7 @@ static void SwLevelState_Dis(u8g2_t *u8g2){
 
 uint8_t g_cur_config_sw = 1;
 
-int32_t g_lv_time  = 0;
+int32_t g_lv_time  = 30;
 int8_t g_lv_steps = 7;
 int8_t g_lv_light = 7;
 char buff_time[20];
@@ -199,7 +199,7 @@ static void SetConfigState_Dis(u8g2_t *u8g2){
 
 
 
-int32_t g_cur_time  = 0;
+int32_t g_cur_time = 0;
 int8_t g_cur_steps = 0;
 int8_t g_cur_light = 0;
 char gaming_time[20];
@@ -227,8 +227,9 @@ static void StartState_Dis(u8g2_t *u8g2){
     u8g2_DrawHLine(u8g2, 7, 16, 65); // 水平线起点，x,y，长度
 
     u8g2_SetFont(u8g2, u8g2_font_8x13B_tf); //u8g2_font_8x13B_tf u8g2_font_inb16_mf u8g2_font_fub20_tf
-
-    sprintf(gaming_time, "Time(s) %d",g_cur_time);
+    if(g_lv_time == 0){sprintf(gaming_time, "Time(s) -");}
+    else{sprintf(gaming_time, "Time(s) %d",g_cur_time);}
+    
     sprintf(gaming_steps,"Steps   %d",g_cur_steps);
     sprintf(gaming_light,"Light   %d",g_cur_light);
     u8g2_DrawStr(u8g2, 12, 30,  gaming_time);

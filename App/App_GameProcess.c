@@ -5,7 +5,7 @@ uint8_t g_currentState = InitState;
 
 #define WS2812MAIN_RE_W() WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1)
 #define WS2812OTHER_GRN() WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
-static void Clear_NowPos_WS2812(int8_t p){
+void Clear_NowPos_WS2812(int8_t p){
      WS2812_set_color_brightness(2, p, 0x000000, 1);
 }
 
@@ -47,8 +47,7 @@ void Change_Pos(int8_t dir) {
   #define _pos g_currentPos                                        
     uint8_t c_l_max = (g_currentLine * 5) - 1; // 1*5 5   01234    
     uint8_t c_l_min = c_l_max - 4;             // 2*5 10  56789    
-                                                                   
-    Clear_NowPos_WS2812(_pos);                                     
+                                                                                                        
     _pos += dir;                                                   
     if(_pos < c_l_min) _pos = c_l_min;                             
     if(_pos > c_l_max) _pos = c_l_max;                             
@@ -57,17 +56,47 @@ void Change_Pos(int8_t dir) {
     print_user_guess();                                            
     WS2812OTHER_GRN();                                             
 }                                                                   
-                                                                   
+                                                 
+uint8_t g_cur_page = 0;      // 当前页码（0开始）
+uint8_t g_total_page = 1;    // 总页数
+//g_lv_steps = 0;      // 总步骤数
+//g_cur_steps = 0;     // 剩余步数        
 int8_t Change_Line(){         
     // 没步数了 就结束
-    if(g_cur_steps == 1) return -1;      
+    if(g_cur_steps == 1) return -1;    
+    
     // 当前行的话， 1234567 8的时候变为1 g_currentLine默认为 1
-    g_currentLine = (g_currentLine % 7) + 1;
+    g_currentLine = (g_currentLine % 8) + 1;
+    
+    if(g_currentLine == 8){ // 换页操作
+        g_currentLine = 1;
+        // 换页
+        if(g_cur_page < g_total_page - 1){
+            g_cur_page++;
+        }else{
+            // 已经是最后一页，回到首页
+            g_cur_page = 0;
+        }
+        
+        // 换页操作，清除原先页面所有
+        // 刷新所有灯
+        Level_init();
+        memset(g_user_guess, 0, sizeof(g_user_guess));
+        memset(g_user_guess, 1, 1);
+        
+        /*  int8_t*/ g_currentPos = 0; 
+        /* uint8_t*/ g_currentLine = 1; 
+        /*uint32_t*/ g_currentColor = 0xFF0000;                               
+        /*  int8_t*/ currentColorIndex = 1;   
+
+    }
+    
     g_cur_steps--;    
     Change_Pos(0);                                                 
     return 0;                                                      
-}                                                                   
-                                                                     
+}                                     
+
+                                                              
 /********************************************************** 颜色类 *****/   
                                                                    /* */
 uint32_t COLORS[7] = {0xFF0000,  // 红                            /* */
@@ -108,6 +137,8 @@ void GameClear_init(){
     /*uint32_t*/ g_currentColor = 0xFF0000;                               
     /*  int8_t*/ currentColorIndex = 1;   
     /*  int8_t*/ g_cur_steps = 0;    
+    /* uint8_t*/ g_cur_page = 0;      // 当前页码（0开始）
+    /* uint8_t*/ g_total_page = 1;    // 总页数
 }
 
 void GameTimeout(){ // g_cur_time == 0
@@ -176,18 +207,24 @@ void vTaskGameProgress(){
    WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
 */
 
-uint8_t ans[5] = {1,1,1,1,1}; // 正确答案
+uint8_t normal_ans[4 * 5] = {0,0,0,0,0,
+                             3,4,7,1,2,
+                             1,6,4,7,5,
+                             6,3,2,4,7,
+                            }; // 正确答案
 
+uint8_t cur_ans[5] = {0};
 void Tip_WS2812Refresh(){
+    memcpy(cur_ans, &normal_ans[g_cur_level * 5], 5 * sizeof(uint8_t));
+
     for(uint8_t i = 0;i < 5; i++){
         for(uint8_t j = 1;j < 8; j++){// 1234567
-            if(ans[i] == j){
+            if(cur_ans[i] == j){
                 WS2812_set_color_brightness(1, (34+j), COLORS[j-1], 1);
             }
         }
     }
 }
-
 
 void Normal_init(){
     // 初始化灯
@@ -210,27 +247,30 @@ void Normal_init(){
 int8_t Normal_Checked(){
     // 确认按下后，先判断是否答对
     uint8_t correctCnt = 0;
-    
     int8_t toCompareLine = g_currentLine - 1;
+    // g_cur_level 1 2 3
     
     // 循环判断每一个位置是不是等于
     for(uint8_t i = 0; i < 5; i++){
-        if(g_user_guess[(5 * toCompareLine) + i] == ans[i]){
+        if(g_user_guess[(5 * toCompareLine) + i] == cur_ans[i]){
             WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
             correctCnt++;
         }     
     }
+    
     printf("correntCnt %d\n",(int)correctCnt);
     if(correctCnt == 5){
         return 1;
     }
     return 0;
+    
 }
 
+void Hard_init(){}
+int8_t Hard_Checked(){return 0;}
 
-
-
-
+void Experts_init(){}
+int8_t Experts_Checked(){return 0;}
 
 #if 0
        

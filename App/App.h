@@ -73,13 +73,14 @@ extern int32_t g_cur_time;
 extern int8_t g_cur_steps;
 extern int8_t g_cur_light;
 
-extern void State_Change();
+void State_Change();
 
 #include "u8g2.h"
 extern u8g2_t u8g2;
 
 // KEY:
 extern int8_t g_isSuccess;
+void Level_init();
 
 // CountDown:
 extern BaseType_t g_cd_enable;  // 默认关闭
@@ -88,8 +89,13 @@ extern BaseType_t g_cd_enable;  // 默认关闭
 extern int8_t g_currentPos;
 extern uint8_t g_currentLine;
 
+void Clear_NowPos_WS2812(int8_t p);
 void Change_Pos(int8_t dir);
 int8_t Change_Line();
+  // PAGE:
+  extern uint8_t g_cur_page;     // 当前页码（从0开始）
+  extern uint8_t g_total_page;   // 总页数
+  void Change_Page();
 
 // COLOR:
 extern uint32_t COLORS[7];
@@ -97,10 +103,14 @@ extern uint32_t g_currentColor;
 void Toggle_Color(int8_t dir);
 
 // GAMING:
-extern void Normal_init();
-extern int8_t Normal_Checked();
-extern void GameTimeout();
-extern void GameClear_init();
+void Normal_init();
+void Hard_init();
+void Experts_init();
+int8_t Normal_Checked();
+int8_t Hard_Checked();
+int8_t Experts_Checked();
 
+void GameTimeout();
+void GameClear_init();
 
 #endif
