@@ -90,7 +90,7 @@ int8_t Change_Line(){
         /* uint8_t*/ g_currentLine = 1; 
         /*uint32_t*/ g_currentColor = 0xFF0000;                               
         /*  int8_t*/ currentColorIndex = 1;   
-
+        /*  int8_t*/ g_color_i = 0;
     }
     
     g_cur_steps--;    
@@ -111,16 +111,16 @@ uint32_t COLORS[7] = {0xFF0000,  // 红
                       0xFF00FF}; // 紫                         
                                                                
 uint32_t g_currentColor = 0xFF0000;                            
-                                                               
+  int8_t g_color_i = 0;                                                               
 void Toggle_Color(int8_t dir) {                                
-    static int8_t i = 0;                                       
+                                           
     // 钳位 0123456                                            
-    i = (i + dir) % 7;                                         
-    if(i < 0) i += 7;                                          
-    currentColorIndex = i+1;                                
+    g_color_i = (g_color_i + dir) % 7;                                         
+    if(g_color_i < 0) g_color_i += 7;                                          
+    currentColorIndex = g_color_i+1;                                
     g_user_guess[g_currentPos] = currentColorIndex;         
     print_user_guess();                                     
-    g_currentColor = COLORS[i];                             
+    g_currentColor = COLORS[g_color_i];                             
     WS2812MAIN_RE_W();                                      
 }                                                           
                                          
@@ -144,6 +144,7 @@ void GameClear_init(){
     /* uint8_t*/ g_cur_page = 0;      // 当前页码（0开始）
     /* uint8_t*/ g_total_page = 1;    // 总页数
     /*uint32_t*/ g_using_time = 0;
+    /*  int8_t*/ g_color_i = 0;    
 }
 
 void GameTimeout(){ // g_cur_time == 0

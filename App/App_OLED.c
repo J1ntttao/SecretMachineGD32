@@ -248,13 +248,12 @@ static void SuccessState_Dis(u8g2_t *u8g2){
     u8g2_SetFontDirection(u8g2, 0); // 设置方向
     
     u8g2_SetFont(u8g2, u8g2_font_fub20_tf); // 设置字体
-    u8g2_DrawStr(u8g2,4, 20, "Success!");  // 设置x,y坐标及字体内容
+    u8g2_DrawStr(u8g2, 4, 20, "Success!");  // 设置x,y坐标及字体内容
 
     // u8g2_DrawHLine(u8g2, 7, 16, 65); // 水平线起点，x,y，长度
 
     u8g2_SetFont(u8g2, u8g2_font_8x13B_tf); //u8g2_font_8x13B_tf u8g2_font_inb16_mf u8g2_font_fub20_tf
-
-    u8g2_DrawStr(u8g2, 8, 38,"Congratulation");
+    u8g2_DrawStr(u8g2, 6, 38, gaming_level);  // 设置x,y坐标及字体内容
     
     u8g2_SetFont(u8g2, u8g2_font_6x10_tf);
     sprintf(gaming_using, "Using: %ds Steps: %d", g_using_time, g_lv_steps - g_cur_steps + 1);
@@ -269,14 +268,13 @@ static void DefeatState_Dis(u8g2_t *u8g2){
     u8g2_SetFontMode(u8g2, 1); 
     u8g2_SetFontDirection(u8g2, 0); // 设置方向
     
-    u8g2_SetFont(u8g2, u8g2_font_fub14_tf); // 设置字体
+    u8g2_SetFont(u8g2, u8g2_font_fub20_tf); // 设置字体
     u8g2_DrawStr(u8g2, 4, 20, "Defeat!");  // 设置x,y坐标及字体内容
     
-    //u8g2_DrawHLine(u8g2, 7, 16, 65); // 水平线起点，x,y，长度
+    u8g2_SetFont(u8g2, u8g2_font_8x13B_tf);
+    u8g2_DrawStr(u8g2, 6, 37, gaming_level);  // 设置x,y坐标及字体内容
 
-    u8g2_SetFont(u8g2, u8g2_font_8x13B_tf); //u8g2_font_8x13B_tf u8g2_font_inb16_mf u8g2_font_fub20_tf
-
-    u8g2_DrawStr(u8g2, 4, 50,"Plz try again...");
+    u8g2_DrawStr(u8g2, 8, 53,"Plz try again");
 
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }

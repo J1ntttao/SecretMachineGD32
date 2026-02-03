@@ -100,6 +100,7 @@ int8_t Change_Line();
 
 // COLOR:
 extern uint32_t COLORS[7];
+extern   int8_t g_color_i;
 extern uint32_t g_currentColor;
 void Toggle_Color(int8_t dir);
 

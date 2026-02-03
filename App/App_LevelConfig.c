@@ -29,9 +29,9 @@ uint8_t hard_ans[4 * 5] = {0,0,0,0,0,
                           }; 
 
 uint8_t experts_ans[4 * 5] = {0,0,0,0,0,
-                              1,2,3,4,5,
-                              2,3,4,5,6,
-                              3,4,5,6,7,
+                              1,2,3,5,7,
+                              1,3,4,5,7,
+                              1,3,5,6,7,
                              };  
 
 uint8_t cur_ans[5] = {0};
@@ -100,21 +100,8 @@ int8_t Normal_Checked(){
 }
 
 void Hard_init(){
-     // 初始化灯
+    // 初始化灯
     Normal_init();
-//    {   
-//        WS2812_set_color_brightness(1, 0, 0xFF0000, 1);
-//        for(uint8_t i = 1; i < WS2812_NUM1-7; i++){
-//            WS2812_set_color_brightness(1, i, 0x000000, 1);
-//        }
-//        Tip_WS2812Refresh();
-//        WS2812_set_color_brightness(2, 0, 0xFFFFFF, 1);
-//        for(uint8_t i = 1; i < WS2812_NUM2; i++){
-//            WS2812_set_color_brightness(2, i, 0x000000, 1);
-//        }
-//    }
-//    WS2812_display(1);
-//    WS2812_display(2);
 }
 
 
@@ -165,10 +152,10 @@ int8_t Hard_Checked(){    // 确认按下后，先判断是否答对
         WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0x00FF00, 1);
     }else if(correctCnt == 5){
         // WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
-        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4, 0x00FF00, 6);
-        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 3, 0x00FF00, 6);
-        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0x00FF00, 6);
-        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0x00FF00, 6);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4, 0x00FF00, 5);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 3, 0x00FF00, 5);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0x00FF00, 5);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0x00FF00, 5);
     }
     
     printf("correntCnt %d\n",(int)correctCnt);
@@ -178,5 +165,14 @@ int8_t Hard_Checked(){    // 确认按下后，先判断是否答对
     return 0;
 }
 
-void Experts_init(){}
-int8_t Experts_Checked(){return 0;}
+void Experts_init(){
+    // 初始化灯
+    Hard_init();
+}
+int8_t Experts_Checked(){
+    /*
+    */
+    
+    
+    return 0;
+}
