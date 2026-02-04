@@ -73,6 +73,7 @@ extern int32_t g_cur_time;
 extern int8_t g_cur_steps;
 extern int8_t g_cur_light;
 
+extern int8_t g_is_timeout;
 extern int32_t g_using_time;
 void State_Change();
 

@@ -6,7 +6,7 @@
 [Found keyword]: ----------Execution Region----------
 [name]:  ER_IROM1 
 [Exec base]: 0x8000000
-[Size]: 0x9d20
+[Size]: 0x9e00
 [Max]: 0x80000
 [Found keyword]: ----------Execution Region----------
 [name]:  RW_IRAM1 
@@ -17,7 +17,7 @@
   RW_IRAM1 :0x20000000
   128.00 KB :|¡ö¡ö¡ö¡ö¡ö¡ö¡ö¡ö¡ö¡ö¡ö¡ö¡ö_______|   67.33 % (   86.19 KB /   128.00 KB) [42816 B]
   ER_IROM1 :0x8000000
-  512.00 KB :|¡ö___________________|    7.67 % (   39.28 KB /   512.00 KB) [484064 B]
+  512.00 KB :|¡ö___________________|    7.71 % (   39.50 KB /   512.00 KB) [483840 B]
 [export csv]: ./GD32F407_EC12_sort_by_flash.csv
 [export csv]: ./GD32F407_EC12_sort_by_ram.csv
 [export xlsx]: GD32F407_EC12_analysis.xlsx

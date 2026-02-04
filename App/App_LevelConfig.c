@@ -1,6 +1,5 @@
 #include "App.h"
 
-
 /*
      int8_t g_user_guess[5 * 8] = {1,0,0,0,0,  // 0
                                    0,0,0,0,0,  // 1
@@ -15,6 +14,8 @@
    WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1)
    WS2812_set_color_brightness(2, g_currentPos, 0x00FF00, 1)
 */
+
+
 // 正确答案
 uint8_t normal_ans[4 * 5] = { 0,0,0,0,0,
                               3,2,7,1,4,
@@ -32,6 +33,7 @@ uint8_t experts_ans[4 * 5] = { 0,0,0,0,0,
                                3,2,1,4,6 };  
 
 uint8_t cur_ans[5] = {0};
+
 
 void Tip_WS2812Refresh(){
     if(g_cur_Diff == Normal){
@@ -99,16 +101,12 @@ int8_t Normal_Checked(){
     }
     
     printf("correntCnt %d\n",(int)correctCnt);
-    if(correctCnt == 5){
-        return 1;
-    }
+    if(correctCnt == 5){ return 1; }
     return 0;
-    
 }
 
 
-void Hard_init(){
-    // 初始化灯
+void Hard_init(){ // 初始化灯
     Normal_init();
 }
 
@@ -174,8 +172,7 @@ int8_t Hard_Checked(){    // 确认按下后，先判断是否答对
 }
 
 
-void Experts_init(){
-    // 初始化灯
+void Experts_init(){ // 初始化灯
     Normal_init();
 }
 

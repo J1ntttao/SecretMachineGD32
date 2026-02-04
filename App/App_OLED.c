@@ -262,6 +262,7 @@ static void SuccessState_Dis(u8g2_t *u8g2){
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }
 
+int8_t g_is_timeout = 0;
 static void DefeatState_Dis(u8g2_t *u8g2){        
     
     u8g2_ClearBuffer(u8g2);  // 清空缓冲区
@@ -273,7 +274,7 @@ static void DefeatState_Dis(u8g2_t *u8g2){
     
     u8g2_SetFont(u8g2, u8g2_font_8x13B_tf);
     u8g2_DrawStr(u8g2, 6, 37, gaming_level);  // 设置x,y坐标及字体内容
-    if(g_cur_time == 0){
+    if(g_is_timeout == 1){
         u8g2_DrawStr(u8g2, 8, 53,"Time out!!!!!!");
     }else{
         u8g2_DrawStr(u8g2, 8, 53,"Plz try again");
