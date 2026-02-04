@@ -165,7 +165,7 @@ uint8_t g_cur_config_sw = 1;
 
 int32_t g_lv_time  = 30;
 int8_t g_lv_steps = 7;
-int8_t g_lv_light = 7;
+int8_t g_lv_light = 5;
 char buff_time[20];
 char buff_steps[20];
 char buff_light[20];
@@ -201,7 +201,7 @@ static void SetConfigState_Dis(u8g2_t *u8g2){
 
 int32_t g_cur_time = 0;
 int8_t g_cur_steps = 0;
-int8_t g_cur_light = 0;
+int8_t g_cur_light = 5;
 char gaming_time[20];
 char gaming_steps[20];
 char gaming_light[20];
@@ -230,8 +230,8 @@ static void StartState_Dis(u8g2_t *u8g2){
     if(g_lv_time == 0){sprintf(gaming_time, "Time(s) -");}
     else{sprintf(gaming_time, "Time(s) %d",g_cur_time);}
     
-    sprintf(gaming_steps,"Steps   %d",g_cur_steps);
-    sprintf(gaming_light,"Light   %d",g_cur_light);
+    sprintf(gaming_steps,"Chances %d",g_cur_steps-1);
+    sprintf(gaming_light,"Lights  %d",g_cur_light);
     u8g2_DrawStr(u8g2, 12, 30,  gaming_time);
     u8g2_DrawStr(u8g2, 12, 45, gaming_steps);
     u8g2_DrawStr(u8g2, 12, 60, gaming_light);    
@@ -269,12 +269,16 @@ static void DefeatState_Dis(u8g2_t *u8g2){
     u8g2_SetFontDirection(u8g2, 0); // 设置方向
     
     u8g2_SetFont(u8g2, u8g2_font_fub20_tf); // 设置字体
-    u8g2_DrawStr(u8g2, 4, 20, "Defeat!");  // 设置x,y坐标及字体内容
+    u8g2_DrawStr(u8g2, 4, 20, "Failure!");  // 设置x,y坐标及字体内容
     
     u8g2_SetFont(u8g2, u8g2_font_8x13B_tf);
     u8g2_DrawStr(u8g2, 6, 37, gaming_level);  // 设置x,y坐标及字体内容
-
-    u8g2_DrawStr(u8g2, 8, 53,"Plz try again");
+    if(g_cur_time == 0){
+        u8g2_DrawStr(u8g2, 8, 53,"Time out!!!!!!");
+    }else{
+        u8g2_DrawStr(u8g2, 8, 53,"Plz try again");
+    }
+    
 
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }

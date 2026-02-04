@@ -195,8 +195,7 @@ static void Key5_down(){
     }
 }
 
-void Keys_on_keydown(uint8_t key){
-    //printf("KEY%d \n",(int)key);
+void Keys_on_keydown(uint8_t key){ //printf("KEY%d \n",(int)key);
     switch(key){
         case 1:     KeyUpDown_down(1);   break;
         case 2:  KeyLeftRight_down(1);   break;
