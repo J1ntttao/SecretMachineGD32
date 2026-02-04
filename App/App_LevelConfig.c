@@ -68,7 +68,7 @@ void Tip_WS2812Refresh(){
 }
 
 
-void Normal_init(){
+void Level_init(){
     // 初始化灯
     {   
         WS2812_set_color_brightness(1, 0, 0xFF0000, 1);
@@ -103,11 +103,6 @@ int8_t Normal_Checked(){
     printf("correntCnt %d\n",(int)correctCnt);
     if(correctCnt == 5){ return 1; }
     return 0;
-}
-
-
-void Hard_init(){ // 初始化灯
-    Normal_init();
 }
 
 
@@ -171,10 +166,6 @@ int8_t Hard_Checked(){    // 确认按下后，先判断是否答对
     return 0;
 }
 
-
-void Experts_init(){ // 初始化灯
-    Normal_init();
-}
 
 // 定义布尔值宏
 #define FALSE 0

@@ -43,7 +43,7 @@ void print_user_guess(){
 
 /********************************************************** 位置相关 ******/ 
  int8_t g_currentPos = 0;                                          
- int8_t currentColorIndex = 1;                                     
+static int8_t currentColorIndex = 1;                                     
 uint8_t g_currentLine = 1;                                         
 void Change_Pos(int8_t dir) {                                      
   #define _pos g_currentPos                                        
@@ -63,14 +63,11 @@ void Change_Pos(int8_t dir) {
                                                  
 uint8_t g_cur_page = 0;      // 当前页码（0开始）
 uint8_t g_total_page = 1;    // 总页数
-//g_lv_steps = 0;      // 总步骤数
-//g_cur_steps = 0;     // 剩余步数   
-
 
 int8_t Change_Line(){         
     // 没步数了 就结束
     if(g_cur_steps == 1) return -1;    
-    if(g_currentLine == 6){
+    if(g_currentLine == 6 && g_cur_page != 0){
         // 灭掉第7行的灯
         WS2812_set_color_brightness(1, 30, 0x000000, 1);
         WS2812_set_color_brightness(1, 31, 0x000000, 1);
@@ -127,8 +124,14 @@ int8_t Change_Line(){
         /*  int8_t*/ g_color_i = 0;
     }
     
-    g_cur_steps--;    
-    Change_Pos(0);                                                 
+    g_cur_steps--;
+    // 四灯模式 五灯模式 共享这个页数切换函数：
+    if(g_cur_light == 5){
+        Change_Pos(0); 
+    }else if(g_cur_light == 4){
+        old_Change_Pos(0); 
+    }
+                                                    
     return 0;                                                      
 }                                     
 

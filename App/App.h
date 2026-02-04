@@ -21,7 +21,7 @@
 
 // 待会OLED要用到的神奇妙妙工具：
 extern EventGroupHandle_t OLED_eventgroup_handle;
-// 待会KEY要用到的神奇妙妙工具：
+// 待会KEY要用到的神奇妙妙工具： App_WS2812.c 监听此事件
 extern EventGroupHandle_t KEY_eventgroup_handle;
 
 #define TOGGLE_COLOR ( 1 << 0 )
@@ -82,7 +82,6 @@ extern u8g2_t u8g2;
 
 // KEY:
 extern int8_t g_isSuccess;
-void Level_init();
 
 // CountDown:
 extern BaseType_t g_cd_enable;  // 默认关闭
@@ -107,9 +106,7 @@ void Toggle_Color(int8_t dir);
 
 // GAMING:
 extern int8_t g_user_guess[5 * 8];
-void Normal_init();
-void Hard_init();
-void Experts_init();
+void Level_init();
 int8_t Normal_Checked();
 int8_t Hard_Checked();
 int8_t Experts_Checked();
@@ -117,4 +114,12 @@ int8_t Experts_Checked();
 void GameTimeout();
 void GameClear_init();
 
+// OLD_4Lights_GAME:
+void old_Level_init();
+void old_Toggle_Color(int8_t dir);
+void old_Change_Pos(int8_t dir);
+
+int8_t o_Normal_Checked();
+int8_t o_Hard_Checked();
+int8_t o_Experts_Checked();
 #endif

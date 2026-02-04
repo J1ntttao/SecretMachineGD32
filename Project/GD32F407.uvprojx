@@ -419,6 +419,11 @@
               <FileType>1</FileType>
               <FilePath>..\App\App_Levelconfig.c</FilePath>
             </File>
+            <File>
+              <FileName>App_FourLightsGameP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\App\App_FourLightsGameP.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
