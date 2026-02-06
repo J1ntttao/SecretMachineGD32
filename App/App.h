@@ -87,6 +87,8 @@ extern int8_t g_isSuccess;
 extern BaseType_t g_cd_enable;  // Ä¬ÈÏ¹Ø±Õ
 
 // POS:
+extern int8_t currentColorIndex;
+
 extern int8_t g_currentPos;
 extern uint8_t g_currentLine;
 
@@ -105,6 +107,7 @@ extern uint32_t g_currentColor;
 void Toggle_Color(int8_t dir);
 
 // GAMING:
+void print_user_guess();
 extern int8_t g_user_guess[5 * 8];
 void Level_init();
 int8_t Normal_Checked();

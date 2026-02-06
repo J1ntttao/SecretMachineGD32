@@ -166,7 +166,7 @@ int8_t Hard_Checked(){    // 确认按下后，先判断是否答对
     return 0;
 }
 
-
+#if 0
 // 定义布尔值宏
 #define FALSE 0
 #define TRUE  1
@@ -283,7 +283,7 @@ int8_t Experts_Checked(){
     }
 
     // 显示橙灯
-    for(temp = 0; temp < orange_shown; temp++) {
+    for(temp = 0    ; temp < orange_shown; temp++) {
         WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4 + index, 0xFFA500, orange_brightness);
         index++;
     }
@@ -299,5 +299,75 @@ int8_t Experts_Checked(){
         WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4 + index, 0x000000, 0);
     }
 
+    return 0;
+}
+
+#endif
+
+uint8_t DisplayResultSimple(uint8_t pos, uint8_t color, uint8_t line);
+
+// 定义布尔值宏
+#define FALSE 0
+#define TRUE  1
+
+int8_t Experts_Checked(){
+    int8_t toCompareLine = g_currentLine - 1;   // g_currentLine 从1开始
+    uint8_t correct_position = 0;               // 颜色和位置都正确的个数
+    uint8_t correct_color_wrong_position = 0;   // 颜色正确但位置错误的个数
+    uint8_t ans_matched[5] = {FALSE};     // FALSE: 未匹配, TRUE: 已匹配
+    uint8_t guess_matched[5] = {FALSE};   // FALSE: 未匹配, TRUE: 已匹配
+    
+    // 第一步：先找出颜色和位置都正确的
+    for(uint8_t i = 0; i < 5; i++){
+        if(g_user_guess[(5 * toCompareLine) + i] == cur_ans[i]){
+            correct_position++;
+            ans_matched[i] = TRUE;
+            guess_matched[i] = TRUE;
+        }
+    }
+    
+    // 第二步：找出颜色正确但位置错误的
+    for(uint8_t i = 0; i < 5; i++){
+        if(guess_matched[i]) continue;
+        
+        for(uint8_t j = 0; j < 5; j++){
+            if(ans_matched[j]) continue;
+            
+            if(g_user_guess[(5 * toCompareLine) + i] == cur_ans[j]){
+                correct_color_wrong_position++;
+                ans_matched[j] = TRUE;
+                break;
+            }
+        }
+    }
+    
+    // 打印结果
+    printf("位置正确：%u，颜色对位置错：%u\n", correct_position, correct_color_wrong_position);
+    
+    // 调用显示函数
+    return DisplayResultSimple(correct_position, correct_color_wrong_position, g_currentLine);
+}
+
+uint8_t DisplayResultSimple(uint8_t pos, uint8_t color, uint8_t line){
+    if(pos == 5){
+        for(uint8_t i = 0; i < 4; i++){
+            WS2812_set_color_brightness(2, 35 + (line * 4) - 4 + i, 0x00FF00, 5);
+        }
+        return 1;
+    }
+    
+    uint8_t red_real = 5 - pos - color;
+    uint8_t green_show = (pos > 4) ? 4 : pos;
+    uint8_t orange_show = (color > (4 - green_show)) ? (4 - green_show) : color;
+    uint8_t red_show = 4 - green_show - orange_show;
+    
+    uint8_t idx = 0;
+    for(uint8_t i = 0; i < green_show; i++, idx++)
+        WS2812_set_color_brightness(2, 35 + (line * 4) - 4 + idx, 0x00FF00, 1);
+    for(uint8_t i = 0; i < orange_show; i++, idx++)
+        WS2812_set_color_brightness(2, 35 + (line * 4) - 4 + idx, 0xFFA500, (orange_show == color) ? 1 : 5);
+    for(uint8_t i = 0; i < red_show; i++, idx++)
+        WS2812_set_color_brightness(2, 35 + (line * 4) - 4 + idx, 0xFF0000, (red_show == red_real) ? 1 : 5);
+    
     return 0;
 }

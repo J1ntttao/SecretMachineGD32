@@ -24,6 +24,13 @@ static void sChange_Pos(int8_t dir){
     xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
 }
 
+static void o_sChange_Pos(int8_t dir){
+    Clear_NowPos_WS2812(g_currentPos);
+    // 往dir走一格
+    old_Change_Pos(dir);
+    // 显示颜色
+    xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
+}
 
 /** 按键排布 **********************************************************
  *         	             KEY1                                        *
@@ -50,7 +57,7 @@ static void KeyUpDown_down(int8_t dir){
             xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
             return;       
         }
-        if(g_currentState == SetConfigState){   // SetConfigState
+         if(g_currentState == SetConfigState){   // SetConfigState
             g_cur_config_sw -= dir;
             if(g_cur_config_sw < 1) g_cur_config_sw = 3;
             if(g_cur_config_sw > 3) g_cur_config_sw = 1;
@@ -102,7 +109,7 @@ static void KeyLeftRight_down(int8_t dir){
             if(g_cur_light == 5){
                 sChange_Pos(dir);
             }else if(g_cur_light == 4){
-                old_Change_Pos(dir);
+                o_sChange_Pos(dir);
             }
             
             return;    
@@ -199,7 +206,7 @@ static void Key5_down(){
         /*    */   // 清除当前位置灯
         /*    */   Clear_NowPos_WS2812(g_currentPos);
         /* 四 */   // 检测答对否
-        /*    */   g_isSuccess = o_Level_Checked(); // ←这里没还做
+        /*    */   g_isSuccess = o_Level_Checked(); 
         /*    */   // 这次检查没答对就换行呗
         /* 灯 */   if(g_isSuccess == 0){
         /*    */       // 改变行
@@ -216,20 +223,16 @@ static void Key5_down(){
         return;    
     }
     if(g_currentState == KEYInitState){ // 游戏结束后按键状态
-         if(g_cur_light == 5){
-            // 状态切换
-            State_Change(); 
-            // 游戏初始化
-            GameClear_init();
-            
-            // 切换屏幕显示
-            xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
-            // 显示颜色
-            xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
-        }else if(g_cur_light == 4){
-            
-        }  
+        // 状态切换
+        State_Change(); 
+        // 游戏初始化
+        GameClear_init();
         
+        // 切换屏幕显示
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
+        // 显示颜色
+        xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
+
         return;    
     }
 }

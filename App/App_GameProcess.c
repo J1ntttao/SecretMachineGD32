@@ -43,7 +43,7 @@ void print_user_guess(){
 
 /********************************************************** Œª÷√œ‡πÿ ******/ 
  int8_t g_currentPos = 0;                                          
-static int8_t currentColorIndex = 1;                                     
+ int8_t currentColorIndex = 1;                                     
 uint8_t g_currentLine = 1;                                         
 void Change_Pos(int8_t dir) {                                      
   #define _pos g_currentPos                                        
@@ -74,6 +74,12 @@ int8_t Change_Line(){
         WS2812_set_color_brightness(1, 32, 0x000000, 1);
         WS2812_set_color_brightness(1, 33, 0x000000, 1);
         WS2812_set_color_brightness(1, 34, 0x000000, 1);
+        
+        WS2812_set_color_brightness(2, 30, 0x000000, 1);
+        WS2812_set_color_brightness(2, 31, 0x000000, 1);
+        WS2812_set_color_brightness(2, 32, 0x000000, 1);
+        WS2812_set_color_brightness(2, 33, 0x000000, 1);
+        WS2812_set_color_brightness(2, 34, 0x000000, 1);
         
         WS2812_set_color_brightness(2, 59, 0x000000, 1);
         WS2812_set_color_brightness(2, 60, 0x000000, 1);
@@ -107,16 +113,20 @@ int8_t Change_Line(){
             }
             
             WS2812_set_color_brightness(2, 0, 0xFFFFFF, 1);
-            for(uint8_t i = 1; i < WS2812_NUM2 - 4; i++){
+            for(uint8_t i = 1; i < 30; i++){
                 WS2812_set_color_brightness(2, i, 0x000000, 1);
             }
+            
+            for(uint8_t i = 35; i < WS2812_NUM2 - 4; i++){
+                WS2812_set_color_brightness(2, i, 0x000000, 1);
+            }            
             
           WS2812_display(1);
           WS2812_display(2);
         
         memset(g_user_guess, 0, sizeof(g_user_guess));
         memset(g_user_guess, 1, 1);
-        
+               
         /*  int8_t*/ g_currentPos = 0; 
         /* uint8_t*/ g_currentLine = 1; 
         /*uint32_t*/ g_currentColor = 0xFF0000;                               

@@ -18,44 +18,37 @@
     }
     
 */
- int8_t o_g_user_guess[4 * 8] = {1,0,0,0,  // 0
-                                 0,0,0,0,  // 1
-                                 0,0,0,0,  // 2
-                                 0,0,0,0,  // 3
-                                 0,0,0,0,  // 4
-                                 0,0,0,0,  // 5
-                                 0,0,0,0,  // 6
-                                 0,0,0,0}; // 7
+
 // 4灯模式 正确答案     
-uint8_t o_normal_ans[4 * 4] = { 0,0,0,0,
-                                1,2,3,4,
-                                1,6,4,7,
-                                6,3,2,4,}; 
+uint8_t o_normal_ans[4 * 5] = { 0,0,0,0,0,
+                                1,2,3,4,0,
+                                1,6,4,7,0,
+                                6,3,2,4,0 }; 
 
-uint8_t o_hard_ans[4 * 4] = { 0,0,0,0,
-                              1,2,3,4,
-                              2,1,7,5,
-                              1,4,5,7,}; 
+uint8_t o_hard_ans[4 * 5] = { 0,0,0,0,0,
+                              1,2,3,4,0,
+                              2,1,7,5,0,
+                              1,4,5,7,0 }; 
 
-uint8_t o_experts_ans[4 * 4] = { 0,0,0,0,
-                                 1,2,3,4,
-                                 1,5,3,6,
-                                 3,2,1,4,};  
+uint8_t o_experts_ans[4 * 5] = { 0,0,0,0,0,
+                                 1,2,3,4,0,
+                                 1,5,3,6,0,
+                                 3,2,1,4,0 };  
 
 uint8_t o_cur_ans[5] = {0};
 
 void o_Tip_WS2812Refresh(){
     if(g_cur_Diff == Normal){
         
-        memcpy(o_cur_ans, &o_normal_ans[g_cur_level * 4], 4 * sizeof(uint8_t));    
+        memcpy(o_cur_ans, &o_normal_ans[g_cur_level * 5], 5 * sizeof(uint8_t));    
         
     }else if(g_cur_Diff == Hard){
         
-        memcpy(o_cur_ans, &o_hard_ans[g_cur_level * 4], 4 * sizeof(uint8_t));
+        memcpy(o_cur_ans, &o_hard_ans[g_cur_level * 5], 5 * sizeof(uint8_t));
         
     }else{ 
         
-        memcpy(o_cur_ans, &o_experts_ans[g_cur_level * 4], 4 * sizeof(uint8_t));
+        memcpy(o_cur_ans, &o_experts_ans[g_cur_level * 5], 5 * sizeof(uint8_t));
         
         printf("Experts不会有Tips\n"); 
         WS2812_set_color_brightness(1, 35, COLORS[0], 1);
@@ -68,7 +61,7 @@ void o_Tip_WS2812Refresh(){
         return; 
     }
     
-    for(uint8_t i = 0;i < 4; i++){     // 把灯提示出来  
+    for(uint8_t i = 0;i < 5; i++){     // 把灯提示出来  
         for(uint8_t j = 1;j < 8; j++){ // 1234567 
             if(o_cur_ans[i] == j){
                 WS2812_set_color_brightness(1, (34+j), COLORS[j-1], 1);
@@ -111,7 +104,6 @@ void old_Level_init(){
 //在五灯模式定义的：
 // uint32_t g_currentColor = 0xFF0000;                            
 //   int8_t g_color_i = 0;
-static int8_t currentColorIndex = 1;  
 
 void old_Toggle_Color(int8_t dir){
     // 钳位 0123456                                            
@@ -119,20 +111,17 @@ void old_Toggle_Color(int8_t dir){
     if(g_color_i < 0) g_color_i += 7;
     
     currentColorIndex = g_color_i+1;                                
-    o_g_user_guess[g_currentPos] = currentColorIndex;         
+    g_user_guess[g_currentPos] = currentColorIndex;         
     // print_user_guess();     
     
     g_currentColor = COLORS[g_color_i];                             
     WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1); 
-    
+    print_user_guess();
     xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);    
 }
 
 
 void old_Change_Pos(int8_t dir){
-    // 清除位置指示灯颜色
-    Clear_NowPos_WS2812(g_currentPos);
-    
     // 进行当前行的钳位 g_currentLine 初始 1
     uint8_t c_l_max = (g_currentLine * 5) - 2;      //  0  1  2  3
     uint8_t c_l_min = c_l_max - 3;                  //  5  6  7  8   
@@ -144,12 +133,11 @@ void old_Change_Pos(int8_t dir){
     // 更改相应灯的颜色位置：
     WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1);      
  
-    o_g_user_guess[g_currentPos] = currentColorIndex;                
-    // print_user_guess();                                    
+    g_user_guess[g_currentPos] = currentColorIndex;                
+    print_user_guess();                                    
     // 设置移动后位置的灯的颜色为白色
     WS2812_set_color_brightness(2, g_currentPos, 0xFFFFFF, 1);                                            
-    
-    xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);    
+  
 }
                            
 
@@ -157,6 +145,23 @@ void old_Change_Pos(int8_t dir){
 ////////////////////////////////////////////////////////////////////////////////
 
 int8_t o_Normal_Checked(){
+    // 确认按下后，先判断是否答对
+    uint8_t correctCnt = 0;
+    int8_t toCompareLine = g_currentLine - 1;
+    // g_cur_level 1 2 3
+    
+    // 循环判断每一个位置是不是等于
+    for(uint8_t i = 0; i < 5; i++){
+        if(g_user_guess[(5 * toCompareLine) + i] == o_cur_ans[i]){
+            if(i != 4){
+                WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
+                correctCnt++;           
+            }
+        }     
+    }
+      
+    printf("correntCnt %d\n",(int)correctCnt);
+    if(correctCnt == 4){ return 1; }    
     return 0;
 }
 
