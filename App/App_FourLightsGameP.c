@@ -21,19 +21,19 @@
 
 // 4灯模式 正确答案     
 uint8_t o_normal_ans[4 * 5] = { 0,0,0,0,0,
-                                1,2,3,4,0,
-                                1,6,4,7,0,
-                                6,3,2,4,0 }; 
+                                7,4,2,1,0,
+                                2,6,3,1,0,
+                                4,2,1,7,0 }; 
 
 uint8_t o_hard_ans[4 * 5] = { 0,0,0,0,0,
-                              1,2,3,4,0,
-                              2,1,7,5,0,
-                              1,4,5,7,0 }; 
+                              2,3,7,1,0,
+                              2,5,7,3,0,
+                              1,4,5,6,0 }; 
 
 uint8_t o_experts_ans[4 * 5] = { 0,0,0,0,0,
-                                 1,2,3,4,0,
-                                 1,5,3,6,0,
-                                 3,2,1,4,0 };  
+                                 4,5,7,3,0,
+                                 3,5,2,6,0,
+                                 5,2,3,4,0 };  
 
 uint8_t o_cur_ans[5] = {0};
 
@@ -166,9 +166,128 @@ int8_t o_Normal_Checked(){
 }
 
 int8_t o_Hard_Checked(){
+    uint8_t correctCnt = 0;
+    int8_t toCompareLine = g_currentLine - 1;   // g_currentLine 从1开始
+    // g_cur_level 1 2 3
+    // 35 36 37 38
+    // 39 40 41 42
+    // ...
+    // 59 60 61 62
+    // 循环判断每一个位置是不是等于
+    for(uint8_t i = 0; i < 4; i++){
+        if(g_user_guess[(5 * toCompareLine) + i] == o_cur_ans[i]){
+            correctCnt++;
+        }
+    }
+    
+    if(correctCnt == 0){
+        // WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4, 0xFF0000, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 3, 0xFF0000, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0xFF0000, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0xFF0000, 1);
+    }else if(correctCnt == 1){
+        // WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 3, 0xFF0000, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0xFF0000, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0xFF0000, 1);
+    }else if(correctCnt == 2){
+        // WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 3, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0xFF0000, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0xFF0000, 1);
+    }else if(correctCnt == 3){
+        // WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 3, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0xFF0000, 1);
+    }else if(correctCnt == 4){
+        // WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 3, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0x00FF00, 1);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0x00FF00, 1);
+    }
+    
+    printf("correntCnt %d\n",(int)correctCnt);
+    if(correctCnt == 4){
+        return 1;
+    }
     return 0;
 }
 
+// 定义布尔值宏
+#define FALSE 0
+#define TRUE  1
+
+uint8_t DisplayGuessResult_4Lights(uint8_t pos, uint8_t color, uint8_t line);
+
 int8_t o_Experts_Checked(){
+    int8_t toCompareLine = g_currentLine - 1;   // g_currentLine 从1开始
+    uint8_t correct_position = 0;               // 对：颜色和位置都正确
+    uint8_t correct_color_wrong_position = 0;   // 有：颜色正确但位置错误
+    
+    // 记录哪些位置已经被匹配过
+    uint8_t ans_matched[4] = {FALSE};    // 答案有4个位置
+    uint8_t guess_matched[4] = {FALSE};  // 猜测有4个位置
+    
+    // 第一步：先找出对（颜色和位置都正确）
+    for(uint8_t i = 0; i < 4; i++) {  // 只检查4个位置
+        if(g_user_guess[(5 * toCompareLine) + i] == o_cur_ans[i]) { 
+            correct_position++;
+            ans_matched[i] = TRUE;
+            guess_matched[i] = TRUE;
+        }
+    }
+    
+    // 第二步：找出有（颜色正确但位置错误）
+    for(uint8_t i = 0; i < 4; i++) {
+        if(guess_matched[i]) continue;
+        
+        for(uint8_t j = 0; j < 4; j++) {
+            if(ans_matched[j]) continue;
+            
+            if(g_user_guess[(5 * toCompareLine) + i] == o_cur_ans[j]) {
+                correct_color_wrong_position++;
+                ans_matched[j] = TRUE;
+                break;
+            }
+        }
+    }
+    
+    // 打印结果
+    printf("\r\n4灯模式 - 对：%u，有：%u\n", correct_position, correct_color_wrong_position);
+    
+    // 显示4灯版本的反馈
+    return DisplayGuessResult_4Lights(correct_position, correct_color_wrong_position, g_currentLine);
+}
+
+uint8_t DisplayGuessResult_4Lights(uint8_t pos, uint8_t color, uint8_t line){
+    uint8_t feedback_start = 35 - 4 + (line * 4);
+    // 胜利情况
+    if(pos == 4) {
+        for(uint8_t i = 0; i < 4; i++) {
+            WS2812_set_color_brightness(2, feedback_start + i, 0x00FF00, 1);
+        }
+        return 1;
+    }
+    
+    // 普通反馈
+    for(uint8_t i = 0; i < 4; i++) {
+        if(i < pos) {
+            // 绿灯：位置和颜色都对
+            WS2812_set_color_brightness(2, feedback_start + i, 0x00FF00, 1);
+        } else if(i < pos + color) {
+            // 橙灯：颜色对但位置错
+            WS2812_set_color_brightness(2, feedback_start + i, 0xFFA500, 1);
+        } else {
+            // 红色：完全不匹配,
+            WS2812_set_color_brightness(2, feedback_start + i, 0xFF0000, 1);
+        }
+    }
+    
     return 0;
 }

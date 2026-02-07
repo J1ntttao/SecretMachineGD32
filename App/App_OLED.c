@@ -156,8 +156,8 @@ static void SwLevelState_Dis(u8g2_t *u8g2){
     
     u8g2_DrawStr(u8g2, 26, 30,"Lv1 ");
     u8g2_DrawStr(u8g2, 26, 45,"Lv2 ");
-    u8g2_DrawStr(u8g2, 26, 60,"Lv3 ");    
-
+    u8g2_DrawStr(u8g2, 26, 60,"Lv3 ");  
+    
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }
 
@@ -215,14 +215,14 @@ static void StartState_Dis(u8g2_t *u8g2){
     u8g2_SetFont(u8g2, u8g2_font_9x18B_tf); // 设置字体
     
     if(g_cur_Diff == 0){
-        sprintf(gaming_level, "Normal Lv%d", g_cur_level);
+        sprintf(gaming_level, "Normal Lv%d L%d", g_cur_level, g_cur_light);
     }else if(g_cur_Diff == 1){
-        sprintf(gaming_level, "Hard Lv%d", g_cur_level);
+        sprintf(gaming_level, "Hard Lv%d L%d", g_cur_level, g_cur_light);
     }else if(g_cur_Diff == 2){
-        sprintf(gaming_level, "Experts Lv%d", g_cur_level);
+        sprintf(gaming_level, "Experts Lv%d L%d", g_cur_level, g_cur_light);
     }
     
-    u8g2_DrawStr(u8g2, 5, 12, gaming_level);  // 设置x,y坐标及字体内容
+    u8g2_DrawStr(u8g2, 0, 12, gaming_level);  // 设置x,y坐标及字体内容
 
     u8g2_DrawHLine(u8g2, 7, 16, 65); // 水平线起点，x,y，长度
 
