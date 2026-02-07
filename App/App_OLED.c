@@ -65,7 +65,9 @@ uint8_t u8g2_gpio_and_delay_gd32(U8X8_UNUSED u8x8_t *u8x8, U8X8_UNUSED uint8_t m
 
 
 void State_Change(){
-    //printf("State_Change:%d\n",(int)g_currentState);
+    #if Debug
+    printf("State_Change:%d\n",(int)g_currentState);
+    #endif
     switch(g_currentState){
         case InitState:      g_currentState = SwDiffState;      break;
         case SwDiffState:    g_currentState = SwLevelState;     break;
@@ -126,23 +128,29 @@ static void SwDiffState_Dis(u8g2_t *u8g2){
     if(g_cur_Diff == 1) whichdiff = 45;
     if(g_cur_Diff == 2) whichdiff = 60;
     
-    u8g2_DrawStr(u8g2, 10, whichdiff,">");
+    u8g2_DrawStr(u8g2, 2, whichdiff,">");
     
-    u8g2_DrawStr(u8g2, 26, 30,"Normal");
-    u8g2_DrawStr(u8g2, 26, 45,"Hard");
-    u8g2_DrawStr(u8g2, 26, 60,"Experts");    
+    u8g2_DrawStr(u8g2, 13, 30,"Normal  *");
+    u8g2_DrawStr(u8g2, 13, 45,"Hard    ***");
+    u8g2_DrawStr(u8g2, 13, 60,"Experts *****");    
 
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }
 
 uint8_t g_cur_level = 1;
+char buff_diff[20];
 static void SwLevelState_Dis(u8g2_t *u8g2){        
 
     u8g2_ClearBuffer(u8g2);  // 清空缓冲区
     u8g2_SetFontMode(u8g2, 1); 
     u8g2_SetFontDirection(u8g2, 0); // 设置方向
     u8g2_SetFont(u8g2, u8g2_font_9x18B_tf); // 设置字体
-    u8g2_DrawStr(u8g2, 5, 12, "SWITCH LEVEL:");  // 设置x,y坐标及字体内容
+    
+    if(g_cur_Diff == 0)      sprintf(buff_diff,"Normal LEVEL");
+    else if(g_cur_Diff == 1) sprintf(buff_diff,"Hard LEVEL");
+    else if(g_cur_Diff == 2) sprintf(buff_diff,"Experts LEVEL");
+
+    u8g2_DrawStr(u8g2, 5, 12, buff_diff);  // 设置x,y坐标及字体内容
     
     u8g2_DrawHLine(u8g2, 7, 16, 110); // 水平线起点，x,y，长度
 
@@ -151,12 +159,22 @@ static void SwLevelState_Dis(u8g2_t *u8g2){
     if(g_cur_level == 1) whichlv = 30;
     if(g_cur_level == 2) whichlv = 45;
     if(g_cur_level == 3) whichlv = 60;
+    // 随机模式
+    if(g_cur_level == 4){
+        u8g2_DrawStr(u8g2, 2, whichlv,">");
+        u8g2_DrawStr(u8g2, 13, 30,"Random Mode");
+        u8g2_DrawHLine(u8g2, 7, 34, 110); // 水平线起点，x,y，长度
+        u8g2_DrawStr(u8g2, 2, 48," Every round is"); 
+        u8g2_DrawStr(u8g2, 2, 63," ...different");        
+        u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
+        return;
+    }
     
-    u8g2_DrawStr(u8g2, 10, whichlv,">");
+    u8g2_DrawStr(u8g2, 2, whichlv,">");
     
-    u8g2_DrawStr(u8g2, 26, 30,"Lv1 ");
-    u8g2_DrawStr(u8g2, 26, 45,"Lv2 ");
-    u8g2_DrawStr(u8g2, 26, 60,"Lv3 ");  
+    u8g2_DrawStr(u8g2, 13, 30,"Lv1 Warm Up");
+    u8g2_DrawStr(u8g2, 13, 45,"Lv2 ThinkSmart");
+    u8g2_DrawStr(u8g2, 13, 60,"Lv3 BrainBurner");  
     
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }
@@ -216,10 +234,16 @@ static void StartState_Dis(u8g2_t *u8g2){
     
     if(g_cur_Diff == 0){
         sprintf(gaming_level, "Normal Lv%d L%d", g_cur_level, g_cur_light);
+        if(g_cur_level == 4)
+            sprintf(gaming_level, "NormalRAND L%d", g_cur_light);
     }else if(g_cur_Diff == 1){
         sprintf(gaming_level, "Hard Lv%d L%d", g_cur_level, g_cur_light);
+        if(g_cur_level == 4)
+            sprintf(gaming_level, "Hard RAND L%d", g_cur_light);
     }else if(g_cur_Diff == 2){
         sprintf(gaming_level, "Experts Lv%d L%d", g_cur_level, g_cur_light);
+        if(g_cur_level == 4)
+            sprintf(gaming_level, "ExpertsRAND L%d", g_cur_light);
     }
     
     u8g2_DrawStr(u8g2, 0, 12, gaming_level);  // 设置x,y坐标及字体内容
@@ -240,7 +264,8 @@ static void StartState_Dis(u8g2_t *u8g2){
 }
 
 int32_t g_using_time = 0;
-char gaming_using[30];
+char gaming_using_time[20];
+char gaming_using_step[20];
 static void SuccessState_Dis(u8g2_t *u8g2){        
     
     u8g2_ClearBuffer(u8g2);  // 清空缓冲区
@@ -256,9 +281,10 @@ static void SuccessState_Dis(u8g2_t *u8g2){
     u8g2_DrawStr(u8g2, 6, 38, gaming_level);  // 设置x,y坐标及字体内容
     
     u8g2_SetFont(u8g2, u8g2_font_6x10_tf);
-    sprintf(gaming_using, "Using: %ds Steps: %d", g_using_time, g_lv_steps - g_cur_steps + 1);
-    u8g2_DrawStr(u8g2, 8, 54, gaming_using);
-
+    sprintf(gaming_using_time, "Using time: %ds", g_using_time);
+    sprintf(gaming_using_step, "Using steps: %d", g_lv_steps - g_cur_steps + 1);
+    u8g2_DrawStr(u8g2, 8, 52, gaming_using_time);
+    u8g2_DrawStr(u8g2, 8, 62, gaming_using_step);
     u8g2_SendBuffer(u8g2); // 将数据发送到屏幕
 }
 

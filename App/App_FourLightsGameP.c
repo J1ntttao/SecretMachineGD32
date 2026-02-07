@@ -20,37 +20,36 @@
 */
 
 // 4灯模式 正确答案     
-uint8_t o_normal_ans[4 * 5] = { 0,0,0,0,0,
-                                7,4,2,1,0,
-                                2,6,3,1,0,
-                                4,2,1,7,0 }; 
+uint8_t o_normal_ans[4 * 5] = { 0,0,0,0,0,  // 0 放置
+                                7,4,2,1,0,  // 1
+                                2,6,3,1,0,  // 2
+                                4,2,1,7,0,  // 3
+};
 
 uint8_t o_hard_ans[4 * 5] = { 0,0,0,0,0,
                               2,3,7,1,0,
                               2,5,7,3,0,
-                              1,4,5,6,0 }; 
+                              1,4,5,6,0,
+}; 
 
 uint8_t o_experts_ans[4 * 5] = { 0,0,0,0,0,
                                  4,5,7,3,0,
                                  3,5,2,6,0,
-                                 5,2,3,4,0 };  
+                                 5,2,3,4,0,
+};  
 
-uint8_t o_cur_ans[5] = {0};
+uint8_t o_cur_ans[5] = {0}; // 4灯模式当前关卡答案存储值
 
 void o_Tip_WS2812Refresh(){
     if(g_cur_Diff == Normal){
-        
-        memcpy(o_cur_ans, &o_normal_ans[g_cur_level * 5], 5 * sizeof(uint8_t));    
-        
-    }else if(g_cur_Diff == Hard){
-        
+        memcpy(o_cur_ans, &o_normal_ans[g_cur_level * 5], 5 * sizeof(uint8_t));           
+    }else if(g_cur_Diff == Hard){    
         memcpy(o_cur_ans, &o_hard_ans[g_cur_level * 5], 5 * sizeof(uint8_t));
-        
-    }else{ 
-        
+    }else{   
         memcpy(o_cur_ans, &o_experts_ans[g_cur_level * 5], 5 * sizeof(uint8_t));
-        
+        #if Debug
         printf("Experts不会有Tips\n"); 
+        #endif
         WS2812_set_color_brightness(1, 35, COLORS[0], 1);
         WS2812_set_color_brightness(1, 36, COLORS[1], 1);
         WS2812_set_color_brightness(1, 37, COLORS[2], 1);
@@ -58,10 +57,25 @@ void o_Tip_WS2812Refresh(){
         WS2812_set_color_brightness(1, 39, COLORS[4], 1);
         WS2812_set_color_brightness(1, 40, COLORS[5], 1);
         WS2812_set_color_brightness(1, 41, COLORS[6], 1);
+        
+        if(g_cur_level == 4){
+            trng_generate_unique_5_shuffle(o_cur_ans);
+        }
+        #if Debug
+        print_array(o_cur_ans, 5);
+        #endif         
         return; 
     }
     
-    for(uint8_t i = 0;i < 5; i++){     // 把灯提示出来  
+    // 以上本质上是填充当前关卡的答案到cur_ans数组 那么如果你是随机，也就是说关卡值是4
+    if(g_cur_level == 4){
+        // 就直接获取一个随机值，填入cur_ans数组，不用管哪个关
+        trng_generate_unique_5_shuffle(o_cur_ans);
+    }
+    #if Debug
+    print_array(o_cur_ans, 5);
+    #endif
+    for(uint8_t i = 0;i < 4; i++){     // 把灯提示出来  
         for(uint8_t j = 1;j < 8; j++){ // 1234567 
             if(o_cur_ans[i] == j){
                 WS2812_set_color_brightness(1, (34+j), COLORS[j-1], 1);
@@ -116,7 +130,9 @@ void old_Toggle_Color(int8_t dir){
     
     g_currentColor = COLORS[g_color_i];                             
     WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1); 
-    print_user_guess();
+    #if Debug
+    print_user_guess();     
+    #endif
     xEventGroupSetBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);    
 }
 
@@ -134,7 +150,9 @@ void old_Change_Pos(int8_t dir){
     WS2812_set_color_brightness(1, g_currentPos, g_currentColor, 1);      
  
     g_user_guess[g_currentPos] = currentColorIndex;                
-    print_user_guess();                                    
+    #if Debug
+    print_user_guess();     
+    #endif                                    
     // 设置移动后位置的灯的颜色为白色
     WS2812_set_color_brightness(2, g_currentPos, 0xFFFFFF, 1);                                            
   
@@ -149,18 +167,16 @@ int8_t o_Normal_Checked(){
     uint8_t correctCnt = 0;
     int8_t toCompareLine = g_currentLine - 1;
     // g_cur_level 1 2 3
-    
     // 循环判断每一个位置是不是等于
-    for(uint8_t i = 0; i < 5; i++){
+    for(uint8_t i = 0; i < 4; i++){
         if(g_user_guess[(5 * toCompareLine) + i] == o_cur_ans[i]){
-            if(i != 4){
-                WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
-                correctCnt++;           
-            }
-        }     
+            WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
+            correctCnt++;           
+        }
     }
-      
+    #if Debug
     printf("correntCnt %d\n",(int)correctCnt);
+    #endif
     if(correctCnt == 4){ return 1; }    
     return 0;
 }
@@ -211,8 +227,9 @@ int8_t o_Hard_Checked(){
         WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0x00FF00, 1);
         WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0x00FF00, 1);
     }
-    
+    #if Debug
     printf("correntCnt %d\n",(int)correctCnt);
+    #endif
     if(correctCnt == 4){
         return 1;
     }
@@ -235,8 +252,8 @@ int8_t o_Experts_Checked(){
     uint8_t guess_matched[4] = {FALSE};  // 猜测有4个位置
     
     // 第一步：先找出对（颜色和位置都正确）
-    for(uint8_t i = 0; i < 4; i++) {  // 只检查4个位置
-        if(g_user_guess[(5 * toCompareLine) + i] == o_cur_ans[i]) { 
+    for(uint8_t i = 0; i < 4; i++){  // 只检查4个位置
+        if(g_user_guess[(5 * toCompareLine) + i] == o_cur_ans[i]){ 
             correct_position++;
             ans_matched[i] = TRUE;
             guess_matched[i] = TRUE;
@@ -244,23 +261,23 @@ int8_t o_Experts_Checked(){
     }
     
     // 第二步：找出有（颜色正确但位置错误）
-    for(uint8_t i = 0; i < 4; i++) {
+    for(uint8_t i = 0; i < 4; i++){
         if(guess_matched[i]) continue;
         
-        for(uint8_t j = 0; j < 4; j++) {
+        for(uint8_t j = 0; j < 4; j++){
             if(ans_matched[j]) continue;
             
-            if(g_user_guess[(5 * toCompareLine) + i] == o_cur_ans[j]) {
+            if(g_user_guess[(5 * toCompareLine) + i] == o_cur_ans[j]){
                 correct_color_wrong_position++;
                 ans_matched[j] = TRUE;
                 break;
             }
         }
     }
-    
+    #if Debug
     // 打印结果
     printf("\r\n4灯模式 - 对：%u，有：%u\n", correct_position, correct_color_wrong_position);
-    
+    #endif
     // 显示4灯版本的反馈
     return DisplayGuessResult_4Lights(correct_position, correct_color_wrong_position, g_currentLine);
 }
@@ -268,26 +285,25 @@ int8_t o_Experts_Checked(){
 uint8_t DisplayGuessResult_4Lights(uint8_t pos, uint8_t color, uint8_t line){
     uint8_t feedback_start = 35 - 4 + (line * 4);
     // 胜利情况
-    if(pos == 4) {
-        for(uint8_t i = 0; i < 4; i++) {
+    if(pos == 4){
+        for(uint8_t i = 0; i < 4; i++){
             WS2812_set_color_brightness(2, feedback_start + i, 0x00FF00, 1);
         }
         return 1;
     }
     
     // 普通反馈
-    for(uint8_t i = 0; i < 4; i++) {
-        if(i < pos) {
+    for(uint8_t i = 0; i < 4; i++){
+        if(i < pos){
             // 绿灯：位置和颜色都对
             WS2812_set_color_brightness(2, feedback_start + i, 0x00FF00, 1);
-        } else if(i < pos + color) {
+        }else if(i < pos + color){
             // 橙灯：颜色对但位置错
             WS2812_set_color_brightness(2, feedback_start + i, 0xFFA500, 1);
-        } else {
+        }else{
             // 红色：完全不匹配,
             WS2812_set_color_brightness(2, feedback_start + i, 0xFF0000, 1);
         }
     }
-    
     return 0;
 }

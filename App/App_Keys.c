@@ -52,8 +52,8 @@ static void KeyUpDown_down(int8_t dir){
         }
         if(g_currentState == SwLevelState){
             g_cur_level -= dir;
-            if(g_cur_level < 1) g_cur_level = 3;
-            if(g_cur_level > 3) g_cur_level = 1;
+            if(g_cur_level < 1) g_cur_level = 4;
+            if(g_cur_level > 4) g_cur_level = 1;
             xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
             return;       
         }
@@ -180,7 +180,7 @@ static void Key5_down(){
         else if(g_cur_light == 4){
             old_Level_init();
         }
-
+        
         return;           
     }
     if(g_currentState == StartState){
@@ -245,7 +245,9 @@ void Keys_on_keydown(uint8_t key){ //printf("KEY%d \n",(int)key);
         case 4:    KeyUpDown_down(-1);   break;
         case 5:           Key5_down();   break;        
         default:
+            #if Debug
             printf("CLEAR KEY \n");
+            #endif
             xEventGroupClearBits(KEY_eventgroup_handle, TOGGLE_COLOR | CHECK_COLOR);
             break;
     }

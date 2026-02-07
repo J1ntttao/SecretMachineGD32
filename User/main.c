@@ -26,6 +26,7 @@ void sys_init(){ // 初始化
     OLED_Init();
     bsp_keys_init();
     WS2812_init();
+    trng_init();
 }
 
 u8g2_t u8g2;
@@ -38,8 +39,9 @@ extern uint8_t u8g2_gpio_and_delay_gd32( U8X8_UNUSED u8x8_t *u8x8,
 void vTask_init(uint8_t *pvParameters){
     // 系统初始化
     sys_init();
+    #if Debug
     printf("Init Complete!\n");
-    
+    #endif
     // 创建按键事件组
     KEY_eventgroup_handle = xEventGroupCreate();
     // 创建屏幕显示事件组

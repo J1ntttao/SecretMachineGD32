@@ -54,8 +54,10 @@ void Change_Pos(int8_t dir) {
     if(_pos < c_l_min) _pos = c_l_min;                             
     if(_pos > c_l_max) _pos = c_l_max;                             
     WS2812MAIN_RE_W();                                             
-    g_user_guess[g_currentPos] = currentColorIndex;                
-    print_user_guess();                                            
+    g_user_guess[g_currentPos] = currentColorIndex;  
+    #if Debug
+    print_user_guess();     
+    #endif
     WS2812OTHER_GRN();                                             
 }            
 
@@ -165,7 +167,9 @@ void Toggle_Color(int8_t dir) {
     if(g_color_i < 0) g_color_i += 7;                                          
     currentColorIndex = g_color_i+1;                                
     g_user_guess[g_currentPos] = currentColorIndex;         
-    print_user_guess();                                     
+    #if Debug
+    print_user_guess();     
+    #endif                                    
     g_currentColor = COLORS[g_color_i];                             
     WS2812MAIN_RE_W();                                      
 }                                                           

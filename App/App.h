@@ -1,6 +1,8 @@
 #ifndef __APP_H__
 #define __APP_H__
 
+#define Debug 1
+
 #include "gd32f4xx.h"
 #include "delay.h"
 #include <stdio.h>
@@ -125,4 +127,13 @@ void old_Change_Pos(int8_t dir);
 int8_t o_Normal_Checked();
 int8_t o_Hard_Checked();
 int8_t o_Experts_Checked();
+
+// RANDOM
+void trng_init(void);
+  // random 5 numbers 
+void trng_generate_unique_5_shuffle(uint8_t *arr);
+  // ´òÓ¡Êý×é
+void print_array(uint8_t *arr, uint8_t size);
+
+
 #endif

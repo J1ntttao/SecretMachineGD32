@@ -17,37 +17,37 @@
 
 
 // 正确答案
-uint8_t normal_ans[4 * 5] = { 0,0,0,0,0,
-                              3,2,7,1,4,
-                              1,6,4,7,5,
-                              6,3,2,4,7 }; 
-
+uint8_t normal_ans[4 * 5] = { 0,0,0,0,0,    // 0 放置
+                              3,2,7,1,4,    // 1
+                              1,6,4,7,5,    // 2
+                              6,3,2,4,7,    // 3
+};
+                                            
 uint8_t hard_ans[4 * 5] = { 0,0,0,0,0,
                             5,2,3,4,1,
                             2,1,7,5,6,
-                            1,4,5,7,3 }; 
+                            1,4,5,7,3,
+}; 
 
 uint8_t experts_ans[4 * 5] = { 0,0,0,0,0,
                                4,2,6,7,1,
                                1,5,3,6,7,
-                               3,2,1,4,6 };  
+                               3,2,1,4,6,
+};  
 
-uint8_t cur_ans[5] = {0};
+uint8_t cur_ans[5] = {0}; // 5灯模式当前关卡答案存储值
 
 
 void Tip_WS2812Refresh(){
-    if(g_cur_Diff == Normal){
-        
+    if(g_cur_Diff == Normal){        
         memcpy(cur_ans, &normal_ans[g_cur_level * 5], 5 * sizeof(uint8_t));    
-        
-    }else if(g_cur_Diff == Hard){
-        
-        memcpy(cur_ans, &hard_ans[g_cur_level * 5], 5 * sizeof(uint8_t));
-        
-    }else{ 
-        
-        memcpy(cur_ans, &experts_ans[g_cur_level * 5], 5 * sizeof(uint8_t));
+    }else if(g_cur_Diff == Hard){        
+        memcpy(cur_ans, &hard_ans[g_cur_level * 5], 5 * sizeof(uint8_t));        
+    }else{         
+        memcpy(cur_ans, &experts_ans[g_cur_level * 5], 5 * sizeof(uint8_t));        
+        #if Debug    
         printf("Experts不会有Tips\n"); 
+        #endif
         WS2812_set_color_brightness(1, 35, COLORS[0], 1);
         WS2812_set_color_brightness(1, 36, COLORS[1], 1);
         WS2812_set_color_brightness(1, 37, COLORS[2], 1);
@@ -55,9 +55,24 @@ void Tip_WS2812Refresh(){
         WS2812_set_color_brightness(1, 39, COLORS[4], 1);
         WS2812_set_color_brightness(1, 40, COLORS[5], 1);
         WS2812_set_color_brightness(1, 41, COLORS[6], 1);
+        
+        if(g_cur_level == 4){
+            trng_generate_unique_5_shuffle(cur_ans);
+        }
+        #if Debug
+        print_array(cur_ans, 5);
+        #endif        
         return; 
     }
     
+    // 以上本质上是填充当前关卡的答案到cur_ans数组 那么如果你是随机，也就是说关卡值是4
+    if(g_cur_level == 4){
+        // 就直接获取一个随机值，填入cur_ans数组，不用管哪个关
+        trng_generate_unique_5_shuffle(cur_ans);
+    }
+    #if Debug
+    print_array(cur_ans, 5);
+    #endif
     for(uint8_t i = 0;i < 5; i++){     // 把灯提示出来  
         for(uint8_t j = 1;j < 8; j++){ // 1234567 
             if(cur_ans[i] == j){
@@ -99,8 +114,9 @@ int8_t Normal_Checked(){
             correctCnt++;
         }     
     }
-    
+    #if Debug    
     printf("correntCnt %d\n",(int)correctCnt);
+    #endif
     if(correctCnt == 5){ return 1; }
     return 0;
 }
@@ -153,13 +169,14 @@ int8_t Hard_Checked(){    // 确认按下后，先判断是否答对
         WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0x00FF00, 1);
     }else if(correctCnt == 5){
         // WS2812_set_color_brightness(2, (5 * toCompareLine) + i, 0x00FF00, 1);
-        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4, 0x00FF00, 5);
-        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 3, 0x00FF00, 5);
-        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0x00FF00, 5);
-        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0x00FF00, 5);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 4, 0x00FF00, 3);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 3, 0x00FF00, 3);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 2, 0x00FF00, 3);
+        WS2812_set_color_brightness(2, 35 + (g_currentLine * 4) - 1, 0x00FF00, 3);
     }
-    
+    #if Debug    
     printf("correntCnt %d\n",(int)correctCnt);
+    #endif
     if(correctCnt == 5){
         return 1;
     }
@@ -203,10 +220,10 @@ int8_t Experts_Checked(){
             }
         }
     }
-    
+    #if Debug    
     // 打印结果
     printf("位置正确：%u，颜色对位置错：%u\n", correct_position, correct_color_wrong_position);
-    
+    #endif
     // 调用显示函数
     return DisplayResultSimple(correct_position, correct_color_wrong_position, g_currentLine);
 }
@@ -228,9 +245,9 @@ uint8_t DisplayResultSimple(uint8_t pos, uint8_t color, uint8_t line){
     for(uint8_t i = 0; i < green_show; i++, idx++)
         WS2812_set_color_brightness(2, 35 + (line * 4) - 4 + idx, 0x00FF00, 1);
     for(uint8_t i = 0; i < orange_show; i++, idx++)
-        WS2812_set_color_brightness(2, 35 + (line * 4) - 4 + idx, 0xFFA500, (orange_show == color) ? 1 : 5);
-    for(uint8_t i = 0; i < red_show; i++, idx++)
-        WS2812_set_color_brightness(2, 35 + (line * 4) - 4 + idx, 0xFF0000, (red_show == red_real) ? 1 : 5);
+        WS2812_set_color_brightness(2, 35 + (line * 4) - 4 + idx, 0xFFA500, (orange_show == color) ? 1 : 3);
+    for(uint8_t i = 0; i < red_show; i++, idx++)                                                         
+        WS2812_set_color_brightness(2, 35 + (line * 4) - 4 + idx, 0xFF0000, (red_show == red_real) ? 1 : 3);
     
     return 0;
 }

@@ -424,6 +424,11 @@
               <FileType>1</FileType>
               <FilePath>..\App\App_FourLightsGameP.c</FilePath>
             </File>
+            <File>
+              <FileName>App_RandomNum.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\App\App_RandomNum.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -893,6 +898,11 @@
               <FileName>gd32f4xx_spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Firmware\GD32F4xx_standard_peripheral\Source\gd32f4xx_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_trng.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Firmware\GD32F4xx_standard_peripheral\Source\gd32f4xx_trng.c</FilePath>
             </File>
           </Files>
         </Group>
