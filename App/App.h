@@ -1,7 +1,7 @@
 #ifndef __APP_H__
 #define __APP_H__
 
-#define Debug 1
+#define Debug 0
 
 #include "gd32f4xx.h"
 #include "delay.h"

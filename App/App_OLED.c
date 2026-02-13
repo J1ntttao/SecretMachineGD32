@@ -98,7 +98,7 @@ static void InitState_Dis(u8g2_t *u8g2){
     // u8g2_DrawVLine(u8g2, 46, 33, 12);
 
     u8g2_SetFont(u8g2, u8g2_font_6x10_tf);
-    u8g2_DrawStr(u8g2, 1,54," v1.0     by J1ntttao");
+    u8g2_DrawStr(u8g2, 1, 58," v2.0     by J1ntttao");
 
     u8g2_SendBuffer(u8g2); // 上面步骤画完，一定要记得将数据发送到屏幕
 }

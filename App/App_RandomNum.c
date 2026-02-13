@@ -41,6 +41,7 @@ void trng_generate_unique_5_shuffle(uint8_t *arr){
     }
 }
 
+// Debug
 // ´òÓ¡Êı×é
 void print_array(uint8_t *arr, uint8_t size){
     for(uint8_t i = 0; i < size; i++){

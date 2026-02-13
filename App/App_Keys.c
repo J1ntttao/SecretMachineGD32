@@ -181,6 +181,7 @@ static void Key5_down(){
             old_Level_init();
         }
         
+        xEventGroupSetBits(OLED_eventgroup_handle, REFRESH_OLED);
         return;           
     }
     if(g_currentState == StartState){

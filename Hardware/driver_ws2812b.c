@@ -55,7 +55,9 @@ static void init_bit_lut(void) {
 
 
 void WS2812_init(void) {
+    #if Debug
     printf("WS2812_init\n");
+    #endif
     
     // 初始化查找表
     init_bit_lut();

@@ -21,19 +21,19 @@
 
 // 4灯模式 正确答案     
 uint8_t o_normal_ans[4 * 5] = { 0,0,0,0,0,  // 0 放置
-                                7,4,2,1,0,  // 1
+                                1,3,2,5,0,  // 1
                                 2,6,3,1,0,  // 2
                                 4,2,1,7,0,  // 3
 };
 
 uint8_t o_hard_ans[4 * 5] = { 0,0,0,0,0,
-                              2,3,7,1,0,
+                              2,4,7,1,0,
                               2,5,7,3,0,
                               1,4,5,6,0,
 }; 
 
 uint8_t o_experts_ans[4 * 5] = { 0,0,0,0,0,
-                                 4,5,7,3,0,
+                                 1,5,6,7,0,
                                  3,5,2,6,0,
                                  5,2,3,4,0,
 };  
@@ -61,9 +61,9 @@ void o_Tip_WS2812Refresh(){
         if(g_cur_level == 4){
             trng_generate_unique_5_shuffle(o_cur_ans);
         }
-        #if Debug
+        //#if Debug
         print_array(o_cur_ans, 5);
-        #endif         
+        //#endif         
         return; 
     }
     
@@ -72,9 +72,9 @@ void o_Tip_WS2812Refresh(){
         // 就直接获取一个随机值，填入cur_ans数组，不用管哪个关
         trng_generate_unique_5_shuffle(o_cur_ans);
     }
-    #if Debug
+    // #if Debug
     print_array(o_cur_ans, 5);
-    #endif
+    // #endif
     for(uint8_t i = 0;i < 4; i++){     // 把灯提示出来  
         for(uint8_t j = 1;j < 8; j++){ // 1234567 
             if(o_cur_ans[i] == j){

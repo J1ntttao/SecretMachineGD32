@@ -18,21 +18,21 @@
 
 // 正确答案
 uint8_t normal_ans[4 * 5] = { 0,0,0,0,0,    // 0 放置
-                              3,2,7,1,4,    // 1
-                              1,6,4,7,5,    // 2
+                              1,3,4,7,5,    // 1
+                              2,4,3,1,6,    // 2
                               6,3,2,4,7,    // 3
 };
                                             
 uint8_t hard_ans[4 * 5] = { 0,0,0,0,0,
-                            5,2,3,4,1,
-                            2,1,7,5,6,
-                            1,4,5,7,3,
+                            1,2,5,4,3,
+                            4,1,7,5,6,
+                            2,4,5,7,3,
 }; 
 
 uint8_t experts_ans[4 * 5] = { 0,0,0,0,0,
-                               4,2,6,7,1,
-                               1,5,3,6,7,
-                               3,2,1,4,6,
+                               1,3,6,7,2,
+                               7,5,3,6,2,
+                               3,4,1,2,6,
 };  
 
 uint8_t cur_ans[5] = {0}; // 5灯模式当前关卡答案存储值
@@ -59,9 +59,9 @@ void Tip_WS2812Refresh(){
         if(g_cur_level == 4){
             trng_generate_unique_5_shuffle(cur_ans);
         }
-        #if Debug
+        // #if Debug
         print_array(cur_ans, 5);
-        #endif        
+        // #endif        
         return; 
     }
     
@@ -70,9 +70,9 @@ void Tip_WS2812Refresh(){
         // 就直接获取一个随机值，填入cur_ans数组，不用管哪个关
         trng_generate_unique_5_shuffle(cur_ans);
     }
-    #if Debug
+    // #if Debug
     print_array(cur_ans, 5);
-    #endif
+    // #endif
     for(uint8_t i = 0;i < 5; i++){     // 把灯提示出来  
         for(uint8_t j = 1;j < 8; j++){ // 1234567 
             if(cur_ans[i] == j){
